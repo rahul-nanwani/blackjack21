@@ -2,7 +2,7 @@ blackjack21
 ===========
 
 A complete package for blackjack, with max 5 players on a table, double
-down, and split features too. \**\*
+down, and split features too. 
 
 Installation:
 '''''''''''''
