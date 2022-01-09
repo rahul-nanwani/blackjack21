@@ -51,7 +51,7 @@ Methods:
 -  **Player**: *play_hit(), play_stand(), get_result()*
 -  **PlayerSuper**: *play_hit(), play_stand(), get_result(),
    can_double_down(), can_split(), play_double_down(), play_split()*
--  **Dealer**: *play_hit(), deal_cards(), play_dealer()* \**\*
+-  **Dealer**: *play_hit(), deal_cards(), play_dealer()* 
 
 Basic Example:
 ''''''''''''''
