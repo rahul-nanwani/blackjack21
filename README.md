@@ -1,8 +1,27 @@
 # blackjack21
 
-##### A complete package for blackjack, with max 5 players on a table, double down, and split features too.
-
+A complete package for blackjack, with max 5 players on a table, double down, and split features too.
 ***
+
+##### Installation:
+
+###### Install Basic
+
+```pycon
+pip install blackjack21
+```
+
+###### Upgrade
+
+```pycon
+pip install --upgrade blackjack21
+```
+
+###### Install specific version
+
+```pycon
+pip install blackjack21==0.0.1
+```
 
 ##### Usage:
 
@@ -12,17 +31,18 @@ from blackjack21 import Table
 
 ##### Attributes:
 
-> - **Table**: *players, dealer, deck*
-> - **Player**: *name, table, hand, total, bet, bust, stand*
-> - **PlayerSuper**: *name, table, hand, total, bet, bust, stand, double down, split*
-> - **Dealer**: *name, table, hand, total, bust, stand*
-> - **Card**: *suit, rank, value*
+- **Table**: *players, dealer, deck*
+- **Player**: *name, table, hand, total, bet, bust, stand*
+- **PlayerSuper**: *name, table, hand, total, bet, bust, stand, double down, split*
+- **Dealer**: *name, table, hand, total, bust, stand*
+- **Card**: *suit, rank, value*
 
 ##### Functions:
 
-> - **Player**: *play_hit(), play_stand(), get_result()*
-> - **PlayerSuper**: *play_hit(), play_stand(), get_result(), can_double_down(), can_split(), play_double_down(), play_split()*
-> - **Dealer**: *play_hit(), deal_cards(), play_dealer()*
+- **Player**: *play_hit(), play_stand(), get_result()*
+- **PlayerSuper**: *play_hit(), play_stand(), get_result(), can_double_down(), can_split(), play_double_down(),
+  play_split()*
+- **Dealer**: *play_hit(), deal_cards(), play_dealer()*
 ***
 
 ##### Basic Example:
@@ -78,6 +98,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 ```
 
 ##### Advanced Example:
@@ -170,4 +191,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 ```
