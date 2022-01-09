@@ -4,3 +4,8 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "blackjack21"
+authors = [{name = "Rahul Nanwani", email = "rahulnanwani@icloud.com"}]
+dynamic = ["version", "description"]
