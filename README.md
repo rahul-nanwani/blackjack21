@@ -37,7 +37,7 @@ from blackjack21 import Table
 - **Dealer**: *name, table, hand, total, bust, stand*
 - **Card**: *suit, rank, value*
 
-##### Functions:
+##### Methods:
 
 - **Player**: *play_hit(), play_stand(), get_result()*
 - **PlayerSuper**: *play_hit(), play_stand(), get_result(), can_double_down(), can_split(), play_double_down(),
