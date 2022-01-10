@@ -3,7 +3,7 @@ blackjack21
 
 A complete package for creating a multiplayer blackjack table.
 
-Features:
+Features
 ---------
 
 -  Create Tables.
