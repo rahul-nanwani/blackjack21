@@ -1,20 +1,28 @@
 blackjack21
 ===========
 
-A complete package for blackjack, with max 5 players on a table, double
-down, and split features too. 
+A complete package for creating a multiplayer blackjack table.
 
+Features:
+---------
 
-Wiki
-'''''''''''''
+-  Create Tables.
+-  Max. 5 players per table.
+-  Hit, Stand, Double Down, Split.
 
-https://github.com/rahul-nanwani/blackjack21/wiki
+Wiki Guide
+----------
 
-Installation:
-'''''''''''''
+-  `Installation <https://github.com/rahul-nanwani/blackjack21/wiki/Installation>`__
+-  `Basic
+   Example <https://github.com/rahul-nanwani/blackjack21/wiki/Basic-Example>`__
+-  `Advanced
+   Example <https://github.com/rahul-nanwani/blackjack21/wiki/Advanced-Example>`__
+-  `Classes, and its attributes and
+   methods <https://github.com/rahul-nanwani/blackjack21/wiki/Classes>`__
 
-.. code:: pycon
-
-   pip install blackjack21
-
-
+   -  `Table <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#table>`__
+   -  `Player <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#player>`__
+   -  `PlayerSuper <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#playersuper>`__
+   -  `Dealer <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#dealer>`__
+   -  `Card <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#card>`__
