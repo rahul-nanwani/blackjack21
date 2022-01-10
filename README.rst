@@ -22,7 +22,7 @@ Wiki Guide
    methods <https://github.com/rahul-nanwani/blackjack21/wiki/Classes>`__
 
    -  `Table <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#table>`__
+   -  `PlayerBase <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#playerbase>`__
    -  `Player <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#player>`__
-   -  `PlayerSuper <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#playersuper>`__
    -  `Dealer <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#dealer>`__
    -  `Card <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#card>`__
