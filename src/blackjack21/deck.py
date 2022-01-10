@@ -11,7 +11,7 @@ class Card:
         """
         self.suit = suit
         self.rank = rank
-        self.value = value
+        self._value = value
 
 
 def deck(suits, ranks):
