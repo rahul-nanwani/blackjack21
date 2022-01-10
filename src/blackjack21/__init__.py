@@ -1,17 +1,10 @@
 """
-Usage:
-    from blackjack21 import Table
-Classes and their attributes:
-    Table: players, dealer, deck
-    PlayerBase: name, hand, total, bet, bust, stand
-        Player: double down, split
-    Dealer: name, hand, total, bust, stand
-    Card: suit, rank, value
-Functions:
-    Table: deal_cards()
-    PlayerBase: play_hit(), play_stand(), get_result()
-        Player: can_double_down(), can_split(), play_double_down(), play_split()
-    Dealer: play_dealer()
+blackjack21
+Documentation: https://github.com/rahul-nanwani/blackjack21/wiki
 """
-
 from .table import Table
+
+__title__ = "blackjack21"
+__version__ = "0.0.2"
+__author__ = "Rahul Nanwani"
+__license__ = "MIT License"
