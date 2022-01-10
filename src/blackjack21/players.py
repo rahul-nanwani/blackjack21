@@ -21,7 +21,7 @@ class PlayerBase:
         values = []
         aces = values.count(11)
         for card in self.hand:
-            values.append(card.value)
+            values.append(card._value)
         for value in values:
             total += value
             while aces > 0 and total > 21:
@@ -30,6 +30,18 @@ class PlayerBase:
 
         self.total = total
         return None
+
+
+class Player(PlayerBase):
+    def __init__(self, name: str, bet: int, table: object):
+        """
+        Create split player for the table
+        :param name: str
+        :param bet: int
+        :param table: object
+        """
+        super().__init__(name, table)
+        self.bet = bet
 
     def play_hit(self):
         """
@@ -45,18 +57,6 @@ class PlayerBase:
             elif self.total == 21:
                 self.stand = True
             return card
-
-
-class Player(PlayerBase):
-    def __init__(self, name: str, bet: int, table: object):
-        """
-        Create split player for the table
-        :param name: str
-        :param bet: int
-        :param table: object
-        """
-        super().__init__(name, table)
-        self.bet = bet
 
     def play_stand(self):
         """
@@ -164,6 +164,21 @@ class Dealer(PlayerBase):
         """
         super().__init__(name, table)
 
+    def _play_hit(self):
+        """
+        Deals another card to the dealer if the dealer is not busted or has played stand
+        :return: Card object
+        """
+        if not (self.stand or self.bust):
+            card = self.table.deck.pop()
+            self.hand.append(card)
+            self._update_total()
+            if self.total > 21:
+                self.bust = True
+            elif self.total == 21:
+                self.stand = True
+            return card
+
     def deal_cards(self):
         """
         After initializing the table deal the cards to all the players and the dealer.
@@ -172,7 +187,7 @@ class Dealer(PlayerBase):
         :return: True if dealt successfully, else False
         """
         if len(self.table.players) > 0:
-            self.play_hit()
+            self._play_hit()
 
             for player in self.table.players:
                 player.play_hit()
@@ -197,7 +212,7 @@ class Dealer(PlayerBase):
         highest_total = max(totals)
 
         while self.total < 17 and self.total < highest_total:
-            self.play_hit()
+            self._play_hit()
         if self.total > 21:
             self.bust = True
         else:
