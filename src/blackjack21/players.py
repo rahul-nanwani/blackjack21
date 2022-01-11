@@ -17,9 +17,9 @@ class PlayerBase:
     def total(self):
         total = 0
         values = []
-        aces = values.count(11)
         for card in self.hand:
             values.append(card._value)
+        aces = values.count(11)
         for value in values:
             total += value
             while aces > 0 and total > 21:
@@ -158,9 +158,9 @@ class Dealer:
         else:
             total = 0
             values = []
-            aces = values.count(11)
             for card in self.hand:
                 values.append(card._value)
+            aces = values.count(11)
             for value in values:
                 total += value
                 while aces > 0 and total > 21:
