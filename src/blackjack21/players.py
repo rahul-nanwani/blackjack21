@@ -1,10 +1,33 @@
+# MIT License
+#
+# Copyright (c) 2022 Rahul Nanwani
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 class PlayerBase:
-    def __init__(self, name: str, bet: int, table):
+    # noinspection PyUnresolvedReferences
+    def __init__(self, name: str, bet: int, table: 'Table'):
         """
         Create split player for the table
         :param name: str
         :param bet: int
-        :param table: object
+        :param table: object instance
         """
         self.name = name
         self.bet = bet
@@ -14,10 +37,11 @@ class PlayerBase:
         self.__table = table
 
     @property
-    def total(self):
+    def total(self) -> int:
         total = 0
         values = []
         for card in self.hand:
+            # noinspection PyProtectedMember
             values.append(card._value)
         aces = values.count(11)
         for value in values:
@@ -29,7 +53,7 @@ class PlayerBase:
         return total
 
     @property
-    def result(self):
+    def result(self) -> int:
         """
         Result for the player once the player is bust or stands.
         Negative implies the player loses, positive implies the player wins, and 0 implies a draw.
@@ -55,9 +79,9 @@ class PlayerBase:
                 return 3
             else:
                 return 0
-        return None
 
-    def play_hit(self):
+    # noinspection PyUnresolvedReferences
+    def play_hit(self) -> 'Card':
         """
         Deals another card to the player if the player is not busted or has played stand
         :return: Card object
@@ -71,7 +95,7 @@ class PlayerBase:
                 self.stand = True
             return card
 
-    def play_stand(self):
+    def play_stand(self) -> bool:
         """
         Stop further dealing any cards to the player before being busted.
         :return: bool
@@ -83,7 +107,8 @@ class PlayerBase:
 
 
 class Player(PlayerBase):
-    def __init__(self, name: str, bet: int, table):
+    # noinspection PyUnresolvedReferences
+    def __init__(self, name: str, bet: int, table: 'Table'):
         """
         Create player for the table
         :param name: str
@@ -93,18 +118,12 @@ class Player(PlayerBase):
         super().__init__(name, bet, table)
         self.split = False
 
-    def can_double_down(self):
-        """
-        Check if the player can play double down
-        :return: bool
-        """
+    @property
+    def can_double_down(self) -> bool:
         return True if (len(self.hand) == 2 and not self.split) else False
 
-    def can_split(self):
-        """
-        Check if the player can play split
-        :return: bool
-        """
+    @property
+    def can_split(self) -> bool:
         if len(self.hand) == 2:
             ranks = []
             for card in self.hand:
@@ -113,18 +132,19 @@ class Player(PlayerBase):
                 return True
         return False
 
-    def play_double_down(self):
+    # noinspection PyUnresolvedReferences
+    def play_double_down(self) -> 'Card':
         """
         Double down can be played only on the first turn by doubling the bet amount and will hit only once
         :return: Card object
         """
-        if self.can_double_down():
+        if self.can_double_down:
             self.bet *= 2
             card = self.play_hit()
             self.play_stand()
             return card
 
-    def play_split(self):
+    def play_split(self) -> 'PlayerBase':
         """
         Split can be played only on the first turn by splitting the hand if both the cards have the same ranks.
         The bet will remain the same on both the hands.
@@ -132,14 +152,15 @@ class Player(PlayerBase):
         and 100 more on the second hand.
         :return: Player object
         """
-        if self.can_split():
+        if self.can_split:
             self.split = PlayerBase(self.name, self.bet, self.__table)
             self.split.hand.append(self.hand.pop())
             return self.split
 
 
 class Dealer:
-    def __init__(self, name, table):
+    # noinspection PyUnresolvedReferences
+    def __init__(self, name: str, table: 'Table'):
         """
         Create a dealer for the table
         :param name: str
@@ -149,16 +170,24 @@ class Dealer:
         self.bust = False
         self.stand = False
         self.__table = table
-        self.__play_hand = False
 
     @property
-    def total(self):
-        if not self.__play_hand:
-            return self.hand[0]._value
-        else:
+    def __hands_played(self) -> bool:
+        for player in self.__table.players:
+            if not (player.bust or player.stand):
+                return False
+            if player.split:
+                if not (player.split.bust or player.split.stand):
+                    return False
+        return True
+
+    @property
+    def total(self) -> int:
+        if self.__hands_played:
             total = 0
             values = []
             for card in self.hand:
+                # noinspection PyProtectedMember
                 values.append(card._value)
             aces = values.count(11)
             for value in values:
@@ -168,8 +197,11 @@ class Dealer:
                     aces -= 1
 
             return total
+        # noinspection PyProtectedMember
+        return self.hand[0]._value
 
-    def __play_hit(self):
+    # noinspection PyUnresolvedReferences
+    def __play_hit(self) -> 'Card':
         """
         Deals another card to the dealer if the dealer is not busted or has played stand
         :return: Card object
@@ -183,7 +215,7 @@ class Dealer:
                 self.stand = True
             return card
 
-    def deal_cards(self):
+    def _deal_cards(self) -> bool:
         """
         After initializing the table deal the cards to all the players and the dealer.
         The dealer will have 2 cards in hand but total will be returned only for the first card.
@@ -198,27 +230,27 @@ class Dealer:
             for player in self.__table.players:
                 player.play_hit()
 
-            self.hand.append(self.__table.deck.pop())
+            self.__play_hit()
 
             return True
-        else:
-            return False
+        return False
 
-    def play_dealer(self):
+    def play_dealer(self) -> bool:
         """
         Play the dealer once everyone has played their hands
-        :return: None
+        :return: True if hand is successfully played, else False
         """
-        self.__play_hand = True
-        totals = []
-        for player in self.__table.players:
-            totals.append(player.total)
-        highest_total = max(totals)
+        if self.__hands_played:
+            totals = []
+            for player in self.__table.players:
+                totals.append(player.total)
+            highest_total = max(totals)
 
-        while self.total < 17 and self.total < highest_total:
-            self.__play_hit()
-        if self.total > 21:
-            self.bust = True
-        else:
-            self.stand = True
-        return None
+            while self.total < 17 and self.total < highest_total:
+                self.__play_hit()
+            if self.total > 21:
+                self.bust = True
+            else:
+                self.stand = True
+            return True
+        return False
