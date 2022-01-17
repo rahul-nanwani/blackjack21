@@ -34,7 +34,7 @@ class PlayerBase:
         self.hand = []
         self.bust = False
         self.stand = False
-        self.__table = table
+        self._table = table
 
     @property
     def total(self) -> int:
@@ -66,16 +66,16 @@ class PlayerBase:
         3: The dealer is bust
         None: player or dealer has not finished playing their hand yet
         """
-        if (self.bust or self.stand) and (self.__table.dealer.bust or self.__table.dealer.stand):
+        if (self.bust or self.stand) and (self._table.dealer.bust or self._table.dealer.stand):
             if self.bust:
                 return -2
-            elif self.total < self.__table.dealer.total and not self.__table.dealer.bust:
+            elif self.total < self._table.dealer.total and not self._table.dealer.bust:
                 return -1
             elif self.total == 21:
                 return 1
-            elif self.total > self.__table.dealer.total:
+            elif self.total > self._table.dealer.total:
                 return 2
-            elif self.total < self.__table.dealer.total and self.__table.dealer.bust:
+            elif self.total < self._table.dealer.total and self._table.dealer.bust:
                 return 3
             else:
                 return 0
@@ -87,7 +87,7 @@ class PlayerBase:
         :return: Card object
         """
         if not (self.stand or self.bust):
-            card = self.__table.deck.pop()
+            card = self._table.deck.pop()
             self.hand.append(card)
             if self.total > 21:
                 self.bust = True
@@ -153,7 +153,7 @@ class Player(PlayerBase):
         :return: Player object
         """
         if self.can_split:
-            self.split = PlayerBase(self.name, self.bet, self.__table)
+            self.split = PlayerBase(self.name, self.bet, self._table)
             self.split.hand.append(self.hand.pop())
             return self.split
 
@@ -169,11 +169,11 @@ class Dealer:
         self.hand = []
         self.bust = False
         self.stand = False
-        self.__table = table
+        self._table = table
 
     @property
     def __hands_played(self) -> bool:
-        for player in self.__table.players:
+        for player in self._table.players:
             if not (player.bust or player.stand):
                 return False
             if player.split:
@@ -207,7 +207,7 @@ class Dealer:
         :return: Card object
         """
         if not (self.stand or self.bust):
-            card = self.__table.deck.pop()
+            card = self._table.deck.pop()
             self.hand.append(card)
             if self.total > 21:
                 self.bust = True
@@ -222,12 +222,12 @@ class Dealer:
         Second card will be revealed only after the result.
         :return: True if dealt successfully, else False
         """
-        if len(self.__table.players) > 0:
+        if len(self._table.players) > 0:
             self.__play_hit()
 
-            for player in self.__table.players:
+            for player in self._table.players:
                 player.play_hit()
-            for player in self.__table.players:
+            for player in self._table.players:
                 player.play_hit()
 
             self.__play_hit()
@@ -242,7 +242,7 @@ class Dealer:
         """
         if self.__hands_played:
             totals = []
-            for player in self.__table.players:
+            for player in self._table.players:
                 totals.append(player.total)
             highest_total = max(totals)
 
