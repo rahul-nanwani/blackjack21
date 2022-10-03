@@ -1,11 +1,13 @@
 from blackjack21 import Table
-
+from blackjack21.players import Dealer
 
 def print_cards(player):
     print(f"\n{player.name}")
-    for card in player.hand:
-        print(f"{card.rank} of {card.suit}")
-    print(player.total)
+    for i, card in enumerate(player.hand):
+        if ((type(player) != Dealer) or (type(player) == Dealer and i == 0)):
+            print(f"{card.rank} of {card.suit}")
+    if type(player) != Dealer:
+        print(player.total)
 
 
 def play_hit_or_stand(player):
@@ -18,7 +20,8 @@ def play_hit_or_stand(player):
             player.play_stand()
 
 
-def play_round(player):
+def play_round(table, player):
+    print_cards(table.dealer)
     print_cards(player)
 
     if player.can_split:
@@ -76,7 +79,7 @@ def main():
     table = Table(players)
 
     for player in table.players:
-        play_round(player)
+        play_round(table, player)
 
     table.dealer.play_dealer()
     show_result(table)
