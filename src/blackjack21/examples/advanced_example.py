@@ -78,6 +78,9 @@ def main():
 
     table = Table(players)
 
+    dealer_first_card = table.dealer.hand[0]
+    print(f"Dealer: {dealer_first_card.rank} of {dealer_first_card.suit} and ?")
+
     for player in table.players:
         play_round(table, player)
 
