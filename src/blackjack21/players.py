@@ -19,10 +19,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from typing import Text
+
+from .deck import Card
+from .table import Table
+
 
 class PlayerBase:
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, bet: int, table: 'Table'):
+    def __init__(self, name: Text, bet: int, table: Table):
         """
         Create split player for the table
         :param name: str
@@ -81,7 +86,7 @@ class PlayerBase:
                 return 0
 
     # noinspection PyUnresolvedReferences
-    def play_hit(self) -> 'Card':
+    def play_hit(self) -> Card:
         """
         Deals another card to the player if the player is not busted or has played stand
         :return: Card object
@@ -108,7 +113,7 @@ class PlayerBase:
 
 class Player(PlayerBase):
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, bet: int, table: 'Table'):
+    def __init__(self, name: Text, bet: int, table: Table):
         """
         Create player for the table
         :param name: str
@@ -133,7 +138,7 @@ class Player(PlayerBase):
         return False
 
     # noinspection PyUnresolvedReferences
-    def play_double_down(self) -> 'Card':
+    def play_double_down(self) -> Card:
         """
         Double down can be played only on the first turn by doubling the bet amount and will hit only once
         :return: Card object
@@ -144,7 +149,7 @@ class Player(PlayerBase):
             self.play_stand()
             return card
 
-    def play_split(self) -> 'PlayerBase':
+    def play_split(self) -> PlayerBase:
         """
         Split can be played only on the first turn by splitting the hand if both the cards have the same ranks.
         The bet will remain the same on both the hands.
@@ -160,7 +165,7 @@ class Player(PlayerBase):
 
 class Dealer:
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, table: 'Table'):
+    def __init__(self, name: Text, table: Table):
         """
         Create a dealer for the table
         :param name: str
@@ -201,7 +206,7 @@ class Dealer:
         return self.hand[0]._value
 
     # noinspection PyUnresolvedReferences
-    def __play_hit(self) -> 'Card':
+    def __play_hit(self) -> Card:
         """
         Deals another card to the dealer if the dealer is not busted or has played stand
         :return: Card object

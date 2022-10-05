@@ -34,17 +34,24 @@ class Table:
     :param ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
     """
 
-    def __init__(self, players: tuple, dealer: str = "Dealer", auto_deal: bool = True,
-                 suits: tuple = ("Hearts", "Diamonds", "Spades", "Clubs"),
-                 ranks: tuple = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")):
+    def __init__(self, players: tuple, **kwargs):
         """
         Create object for this class to initialize a blackjack table
         :param players: tuple of player tuples ((name: str, bet: int), )
-        :param dealer: str: dealer name (default: "Dealer")
-        :param auto_deal: bool (default: True)
-        :param suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
-        :param ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
+        :keyword dealer_name: str: dealer name (default: "Dealer")
+        :keyword auto_deal: bool (default: True)
+        :keyword suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
+        :keyword ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
         """
+        dealer = kwargs.get('dealer_name', "Dealer")
+        auto_deal = kwargs.get('auto_deal', True)
+        suits = kwargs.get('suits', ("Hearts", "Diamonds", "Spades", "Clubs"))
+        ranks = kwargs.get('ranks', ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
+
+        if not isinstance(suits, tuple) or len(suits) != 4:
+            suits = ("Hearts", "Diamonds", "Spades", "Clubs")
+        if not isinstance(ranks, tuple) or len(ranks) != 13:
+            ranks = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 
         self.players = []
         for player in players[:5]:

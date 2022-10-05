@@ -21,10 +21,11 @@
 # SOFTWARE.
 
 from random import shuffle
+from typing import Text
 
 
 class Card:
-    def __init__(self, suit: str, rank: str, value: int):
+    def __init__(self, suit: Text, rank: Text, value: int):
         """
         Create card for the deck
         :param suit: suit of the card
@@ -36,7 +37,7 @@ class Card:
         self._value = value
 
 
-def deck(suits: tuple, ranks: tuple) -> list:
+def deck(suits: tuple, ranks: tuple):
     """
     Create a deck of cards
     :param suits: tuple of 4 suits
