@@ -1,13 +1,15 @@
 blackjack21
 ===========
+
 .. image:: https://img.shields.io/pypi/v/blackjack21?style=for-the-badge
-   :alt: PyPI  
+   :alt: PyPI 
 .. image:: https://img.shields.io/pypi/status/blackjack21?style=for-the-badge
    :alt: PyPI - Status
 .. image:: https://img.shields.io/pypi/dd/blackjack21?style=for-the-badge
    :alt: PyPI - Downloads
-.. image:: https://img.shields.io/pypi/l/blackjack21?style=for-the-badge
+.. image:: https://img.shields.io/pypi/l/blackjack21?style=for-the-badge 
    :alt: PyPI - License
+   
 ===========
 
 A complete package for creating a multiplayer blackjack table.
