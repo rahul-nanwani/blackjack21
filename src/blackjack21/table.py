@@ -14,52 +14,73 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .deck import deck
-from .players import Player, Dealer
+from typing import Iterable, List
 
+from .deck import Deck
+from .exceptions import InvalidPlayersData
+from .players import *
+
+__all__ = (
+    "Table",
+    "Players",
+)
+Players = List[Player]
 
 class Table:
-    """
-    Create object for this class to initialize a blackjack table
+    """Create object for this class to initialize a blackjack table
+
     :param players: tuple of player tuples ((name: str, bet: int), )
     :param dealer: str: dealer name (default: "Dealer")
     :param auto_deal: bool (default: True)
     :param suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
     :param ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
+    :param deck_count: int number of decks to be used
     """
+    __slots__ = (
+        "__players",
+        "__dealer",
+        "__deck",
+        "__auto_deal",
+    )
 
-    def __init__(self, players: tuple, **kwargs):
-        """
-        Create object for this class to initialize a blackjack table
-        :param players: tuple of player tuples ((name: str, bet: int), )
-        :keyword dealer_name: str: dealer name (default: "Dealer")
-        :keyword auto_deal: bool (default: True)
-        :keyword suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
-        :keyword ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
-        """
-        dealer = kwargs.get('dealer_name', "Dealer")
-        auto_deal = kwargs.get('auto_deal', True)
-        suits = kwargs.get('suits', ("Hearts", "Diamonds", "Spades", "Clubs"))
-        ranks = kwargs.get('ranks', ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
+    def __init__(self, players: Iterable, **kwargs):
+        dealer: str = kwargs.get('dealer_name', "Dealer")
+        self.__auto_deal: bool = kwargs.get('auto_deal', True)
+        suits: Iterable = kwargs.get('suits', ("Hearts", "Diamonds", "Spades", "Clubs", ))
+        ranks: Iterable = kwargs.get('ranks', ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", ))
+        count: int = kwargs.get('deck_count', len(tuple(players))//5 + 1)
 
-        if not isinstance(suits, tuple) or len(suits) != 4:
-            suits = ("Hearts", "Diamonds", "Spades", "Clubs")
-        if not isinstance(ranks, tuple) or len(ranks) != 13:
-            ranks = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+        self.__deck = Deck(tuple(suits), tuple(ranks), count=count)
+        self.__players = []
+        for player in tuple(players):
+            if len(player) == 2:
+                self.__players.append(Player(player[0], player[1], self))
+            else:
+                raise InvalidPlayersData
+        self.__dealer = Dealer(dealer, self)
 
-        self.players = []
-        for player in players[:5]:
-            self.players.append(Player(player[0], player[1], self))
+    @property
+    def auto_deal(self) -> bool:
+        """Table auto deal bool value"""
+        return self.__auto_deal
 
-        self.dealer = Dealer(dealer, self)
-        self.deck = deck(suits, ranks)
+    @property
+    def deck(self) -> Deck:
+        """Table's Deck class object"""
+        return self.__deck
 
-        if auto_deal:
-            # noinspection PyProtectedMember
-            self.dealer._deal_cards()
+    @property
+    def dealer(self) -> Dealer:
+        """Table's Dealer class object"""
+        return self.__dealer
+
+    @property
+    def players(self) -> Players:
+        """List of Player class objects for the Table"""
+        return self.__players
