@@ -14,19 +14,26 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
 """
-blackjack21
+blackjack21 v3.0.0
+MIT License
+Rahul Nanwani
 Documentation: https://github.com/rahul-nanwani/blackjack21/wiki
 """
-from .table import Table
 
 __title__ = "blackjack21"
-__version__ = "2.0.1"
+__version__ = "3.0.0"
 __author__ = "Rahul Nanwani"
 __license__ = "MIT License"
+
+
+from .exceptions import *   # noqa
+from .deck import *         # noqa
+from .players import *      # noqa
+from .table import *        # noqa

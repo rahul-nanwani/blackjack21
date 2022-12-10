@@ -1,10 +1,9 @@
-from blackjack21 import Table
-from blackjack21.players import Dealer
+from blackjack21 import Table, Dealer
 
 def print_cards(player):
     print(f"\n{player.name}")
     for i, card in enumerate(player.hand):
-        if ((type(player) != Dealer) or (type(player) == Dealer and i == 0)):
+        if (type(player) != Dealer) or (type(player) == Dealer and i == 0):
             print(f"{card.rank} of {card.suit}")
     if type(player) != Dealer:
         print(player.total)

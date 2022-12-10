@@ -1,13 +1,11 @@
 blackjack21
 ===========
 
-.. image:: https://img.shields.io/pypi/v/blackjack21?style=for-the-badge
+.. image:: https://img.shields.io/pypi/v/blackjack21?style=flat-square
    :alt: PyPI 
-.. image:: https://img.shields.io/pypi/status/blackjack21?style=for-the-badge
+.. image:: https://img.shields.io/pypi/status/blackjack21?style=flat-square
    :alt: PyPI - Status
-.. image:: https://img.shields.io/pypi/dd/blackjack21?style=for-the-badge
-   :alt: PyPI - Downloads
-.. image:: https://img.shields.io/pypi/l/blackjack21?style=for-the-badge 
+.. image:: https://img.shields.io/pypi/l/blackjack21?style=flat-square
    :alt: PyPI - License
    
 ===========
@@ -17,8 +15,9 @@ A complete package for creating a multiplayer blackjack table.
 Features
 ---------
 
--  Create Tables.
--  Max. 5 players per table.
+-  No limit of Tables count.
+-  No limit of players per table.
+-  No limit of decks of cards being used for the table
 -  Hit, Stand, Double Down, Split.
 
 Wiki Guide
@@ -36,4 +35,6 @@ Wiki Guide
    -  `PlayerBase <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#playerbase>`__
    -  `Player <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#player>`__
    -  `Dealer <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#dealer>`__
+   -  `Deck <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#deck>`__
    -  `Card <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#card>`__
+   -  `Exceptions <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#exceptions>`__
