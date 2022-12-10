@@ -20,12 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-blackjack21 v3.0.0
-MIT License
-Rahul Nanwani
-Documentation: https://github.com/rahul-nanwani/blackjack21/wiki
-"""
+"""blackjack21 v3.0.0"""
 
 __title__ = "blackjack21"
 __version__ = "3.0.0"
