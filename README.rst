@@ -20,21 +20,7 @@ Features
 -  No limit of decks of cards being used for the table
 -  Hit, Stand, Double Down, Split.
 
-Wiki Guide
+Documentation
 ----------
 
--  `Installation <https://github.com/rahul-nanwani/blackjack21/wiki/Installation>`__
--  `Basic
-   Example <https://github.com/rahul-nanwani/blackjack21/wiki/Basic-Example>`__
--  `Advanced
-   Example <https://github.com/rahul-nanwani/blackjack21/wiki/Advanced-Example>`__
--  `Classes, and its attributes and
-   methods <https://github.com/rahul-nanwani/blackjack21/wiki/Classes>`__
-
-   -  `Table <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#table>`__
-   -  `PlayerBase <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#playerbase>`__
-   -  `Player <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#player>`__
-   -  `Dealer <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#dealer>`__
-   -  `Deck <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#deck>`__
-   -  `Card <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#card>`__
-   -  `Exceptions <https://github.com/rahul-nanwani/blackjack21/wiki/Classes#exceptions>`__
+http://blackjack21.rtfd.io/
