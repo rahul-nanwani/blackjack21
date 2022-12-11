@@ -1,3 +1,6 @@
+# Advanced Example
+
+```python
 from blackjack21 import Table, Dealer
 
 def print_cards(player):
@@ -64,7 +67,7 @@ def print_player_result(player):
 def show_result(table):
     print_cards(table.dealer)
     print(f"\nDealer has {table.dealer.total}")
-    for player in table.players:
+    for player in table:
         print_player_result(player)
         if player.split:
             print_player_result(player.split)
@@ -80,7 +83,7 @@ def main():
     dealer_first_card = table.dealer.hand[0]
     print(f"Dealer: {dealer_first_card.rank} of {dealer_first_card.suit} and ?")
 
-    for player in table.players:
+    for player in table:
         play_round(table, player)
 
     table.dealer.play_dealer()
@@ -89,3 +92,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

@@ -1,5 +1,5 @@
 blackjack21
-====
+===========
 
 .. toctree::
    :maxdepth: 4
