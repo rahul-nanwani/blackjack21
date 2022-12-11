@@ -78,7 +78,8 @@ class Deck:
 
     :param suits: tuple of 4 suits
     :param ranks: tuple of 13 card ranks
-    :param count: int number of decks to be merged
+
+    :keyword count: int number of decks to be merged
 
     :raises InvalidSuits: if length of suits is not 4
     :raises InvalidRanks: if length of ranks is not 13
@@ -117,12 +118,12 @@ class Deck:
         return f"<Deck cards: {len(self.__cards)}>"
 
     def __iter__(self):
-        """Iterate through the cards the deck"""
+        """Iterate through the cards in the deck"""
         self.__index = -1
         return self
 
     def __next__(self):
-        """Iterate through the cards the deck"""
+        """Iterate through the cards in the deck"""
         try:
             self.__index += 1
             return self.__cards[self.__index]

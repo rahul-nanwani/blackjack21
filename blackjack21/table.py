@@ -40,14 +40,15 @@ def valid_player(player: tuple, cls):
         raise InvalidPlayersData
 
 class Table:
-    """Create object for this class to initialize a blackjack table
+    """Create object for this class to initialize a blackjack table (Iterable through players)
 
     :param players: tuple of player tuples ((name: str, bet: int), )
-    :param dealer: str: dealer name (default: "Dealer")
-    :param auto_deal: bool (default: True)
-    :param suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
-    :param ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
-    :param deck_count: int number of decks to be used
+
+    :keyword dealer: str: dealer name (default: "Dealer")
+    :keyword auto_deal: bool (default: True)
+    :keyword suits: tuple of 4 suits (default: ("Hearts", "Diamonds", "Spades", "Clubs"))
+    :keyword ranks: tuple of 13 ranks ace to king (default: ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"))
+    :keyword deck_count: int number of decks to be used
     """
     __slots__ = (
         "__players",
@@ -115,5 +116,5 @@ class Table:
 
     @property
     def players(self) -> Players:
-        """List of Player class objects for the Table"""
+        """tuple of Player class objects for the Table"""
         return self.__players

@@ -36,7 +36,7 @@ Result = Union[int, None]
 
 
 class PlayerBase:
-    """Base/Split player class
+    """Base/Split player class (Iterable through hand)
 
     :param name: str
     :param bet: int
@@ -46,6 +46,7 @@ class PlayerBase:
     __slots__ = (
         "__name",
         "__bet",
+        "__index",
         "__hand",
         "__bust",
         "__stand",
@@ -55,6 +56,7 @@ class PlayerBase:
     def __init__(self, name: str, bet: int, table):
         self.__name = name
         self.__bet = bet
+        self.__index = -1
         self.__hand = []
         self.__bust = False
         self.__stand = False
@@ -66,6 +68,27 @@ class PlayerBase:
 
     def __str__(self):
         return self.__name
+
+    def __iter__(self):
+        """Iterate through the cards in hand"""
+        self.__index = -1
+        return self
+
+    def __next__(self):
+        """Iterate through the cards in hand"""
+        try:
+            self.__index += 1
+            return self.__hand[self.__index]
+        except IndexError:
+            raise StopIteration
+
+    def __getitem__(self, index):
+        """Get card at index"""
+        return self.__hand[index]
+
+    def __len__(self):
+        """Number of cards in the hand"""
+        return len(self.__hand)
 
     # properties
     @property
@@ -156,7 +179,7 @@ class PlayerBase:
 
 
 class Player(PlayerBase):
-    """Player class (Inherited from PlayerBase class)
+    """Player class (Inherited from PlayerBase class (Iterable through hand))
 
     :param name: str
     :param bet: int
@@ -229,4 +252,3 @@ class Player(PlayerBase):
             return self.__split
         else:
             raise PlayFailure(self.name, "split")
-
