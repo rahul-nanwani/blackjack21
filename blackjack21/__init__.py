@@ -20,15 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""blackjack21 v3.0.0"""
+"""blackjack21 v3.0.1"""
 
 __title__ = "blackjack21"
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 __author__ = "Rahul Nanwani"
 __license__ = "MIT License"
 
 
 from .exceptions import *   # noqa
 from .deck import *         # noqa
+from .dealer import *       # noqa
 from .players import *      # noqa
 from .table import *        # noqa

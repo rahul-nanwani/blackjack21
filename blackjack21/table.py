@@ -20,8 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Iterable, List
+from typing import Iterable, Tuple
 
+from .dealer import *
 from .deck import Deck
 from .exceptions import InvalidPlayersData
 from .players import *
@@ -30,7 +31,13 @@ __all__ = (
     "Table",
     "Players",
 )
-Players = List[Player]
+Players = Tuple[Player]
+
+def valid_player(player: tuple, cls):
+    if len(player) == 2:
+        return Player(player[0], player[1], cls)
+    else:
+        raise InvalidPlayersData
 
 class Table:
     """Create object for this class to initialize a blackjack table
@@ -47,6 +54,7 @@ class Table:
         "__dealer",
         "__deck",
         "__auto_deal",
+        "__index",
     )
 
     def __init__(self, players: Iterable, **kwargs):
@@ -57,14 +65,39 @@ class Table:
         count: int = kwargs.get('deck_count', len(tuple(players))//5 + 1)
 
         self.__deck = Deck(tuple(suits), tuple(ranks), count=count)
-        self.__players = []
-        for player in tuple(players):
-            if len(player) == 2:
-                self.__players.append(Player(player[0], player[1], self))
-            else:
-                raise InvalidPlayersData
+        self.__players = tuple(map(lambda player: valid_player(player, self), players))
         self.__dealer = Dealer(dealer, self)
+        self.__index = -1
 
+    # dunder methods
+    def __repr__(self):
+        return f"<Table dealer: {self.__dealer} players: {len(self.__players)}>"
+
+    def __str__(self):
+        return f"<Table dealer: {self.__dealer} players: {len(self.__players)}>"
+
+    def __iter__(self):
+        """Iterate through the players on the table"""
+        self.__index = -1
+        return self
+
+    def __next__(self):
+        """Iterate through the players on the table"""
+        try:
+            self.__index += 1
+            return self.__players[self.__index]
+        except IndexError:
+            raise StopIteration
+
+    def __getitem__(self, index):
+        """Player at index"""
+        return self.__players[index]
+
+    def __len__(self):
+        """Number of players on the table"""
+        return len(self.__players)
+
+    # properties
     @property
     def auto_deal(self) -> bool:
         """Table auto deal bool value"""

@@ -4,6 +4,14 @@ blackjack21 package
 Submodules
 ----------
 
+blackjack21.dealer module
+-------------------------
+
+.. automodule:: blackjack21.dealer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 blackjack21.deck module
 -----------------------
 

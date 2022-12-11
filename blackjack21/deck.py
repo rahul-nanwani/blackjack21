@@ -22,6 +22,7 @@
 
 from itertools import chain
 from random import shuffle
+from typing import List
 
 from .exceptions import InvalidSuits, InvalidRanks
 
@@ -49,6 +50,7 @@ class Card:
         self.__rank = rank
         self.__value = value
 
+    # dunder methods
     def __repr__(self):
         return f"{self.rank} of {self.suit}"
 
@@ -85,6 +87,7 @@ class Deck:
     __slots__ = (
         "__cards",
         "__index",
+        "__drawn_cards",
     )
 
     def __init__(self, suits: tuple, ranks: tuple, **kwargs):
@@ -103,13 +106,23 @@ class Deck:
         )
         self.__cards = list(chain(*self.__cards))
         self.__cards *= kwargs.get('count', 1)
+        self.__drawn_cards = []
         shuffle(self.__cards)
 
+    # dunder methods
+    def __repr__(self):
+        return f"<Deck cards: {len(self.__cards)}>"
+
+    def __str__(self):
+        return f"<Deck cards: {len(self.__cards)}>"
+
     def __iter__(self):
+        """Iterate through the cards the deck"""
         self.__index = -1
         return self
 
     def __next__(self):
+        """Iterate through the cards the deck"""
         try:
             self.__index += 1
             return self.__cards[self.__index]
@@ -117,16 +130,23 @@ class Deck:
             raise StopIteration
 
     def __getitem__(self, index):
+        """Get card at index"""
         return self.__cards[index]
 
     def __len__(self):
+        """Number of cards left in the deck"""
         return len(self.__cards)
 
     # properties
     @property
-    def cards(self) -> list:
-        """List of Card class objects"""
+    def cards(self) -> List[Card]:
+        """List of Card class objects currently in the deck"""
         return self.__cards
+
+    @property
+    def drawn_cards(self) -> List[Card]:
+        """List of Card class objects drawn from the deck"""
+        return self.__drawn_cards
 
     # methods
     def shuffle(self):
@@ -138,4 +158,6 @@ class Deck:
 
         :return: Card object
         """
-        return self.__cards.pop()
+        drawn_card = self.__cards.pop()
+        self.__drawn_cards.append(drawn_card)
+        return drawn_card

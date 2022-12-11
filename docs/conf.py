@@ -9,12 +9,14 @@
 import os
 import sys
 
+from blackjack21 import __title__, __author__, __version__
+
 sys.path.insert(0, os.path.abspath(".."))
 
-project = 'blackjack21 Documentation'
-copyright = '2022, Rahul Nanwani'
-author = 'Rahul Nanwani'
-release = '3.0.0'
+project = f'{__title__} Documentation'
+copyright = f'2022, {__author__}'
+author = __author__
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
