@@ -12,6 +12,7 @@ class Dealer:
     """Dealer class
 
     :param name: str
+    :param table: Table class object
     """
     __slots__ = (
         "__name",
