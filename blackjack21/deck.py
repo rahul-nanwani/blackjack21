@@ -40,15 +40,15 @@ class Card:
     """
 
     __slots__ = (
-        "__suit",
-        "__rank",
-        "__value",
+        "_suit",
+        "_rank",
+        "_value",
     )
 
     def __init__(self, suit: str, rank: str, value: int):
-        self.__suit = suit
-        self.__rank = rank
-        self.__value = value
+        self._suit = suit
+        self._rank = rank
+        self._value = value
 
     # dunder methods
     def __repr__(self):
@@ -61,16 +61,16 @@ class Card:
     @property
     def suit(self) -> str:
         """Card suit"""
-        return self.__suit
+        return self._suit
     @property
     def rank(self) -> str:
         """Card rank"""
-        return self.__rank
+        return self._rank
 
     @property
     def value(self) -> int:
         """Card value"""
-        return self.__value
+        return self._value
 
 
 class Deck:
@@ -86,9 +86,8 @@ class Deck:
     """
 
     __slots__ = (
-        "__cards",
-        "__index",
-        "__drawn_cards",
+        "_cards",
+        "_drawn_cards",
     )
 
     def __init__(self, suits: tuple, ranks: tuple, **kwargs):
@@ -97,68 +96,58 @@ class Deck:
         if len(ranks) != 13:
             raise InvalidRanks(ranks)
 
-        self.__index = -1
-        self.__cards = map(
+        self._cards = map(
             lambda suit: map(
                 lambda rank, value: Card(suit, rank, value),
                 ranks, [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
             ),
             suits
         )
-        self.__cards = list(chain(*self.__cards))
-        self.__cards *= kwargs.get('count', 1)
-        self.__drawn_cards = []
-        shuffle(self.__cards)
+        self._cards = list(chain(*self._cards))
+        self._cards *= kwargs.get('count', 1)
+        self._drawn_cards = []
+        shuffle(self._cards)
 
     # dunder methods
     def __repr__(self):
-        return f"<Deck cards: {len(self.__cards)}>"
+        return f"<Deck cards: {len(self._cards)}>"
 
     def __str__(self):
-        return f"<Deck cards: {len(self.__cards)}>"
+        return f"<Deck cards: {len(self._cards)}>"
 
     def __iter__(self):
         """Iterate through the cards in the deck"""
-        self.__index = -1
-        return self
-
-    def __next__(self):
-        """Iterate through the cards in the deck"""
-        try:
-            self.__index += 1
-            return self.__cards[self.__index]
-        except IndexError:
-            raise StopIteration
+        yield from self._cards
 
     def __getitem__(self, index):
         """Get card at index"""
-        return self.__cards[index]
+        return self._cards[index]
 
     def __len__(self):
         """Number of cards left in the deck"""
-        return len(self.__cards)
+        return len(self._cards)
 
     # properties
     @property
     def cards(self) -> List[Card]:
         """List of Card class objects currently in the deck"""
-        return self.__cards
+        return self._cards
 
     @property
     def drawn_cards(self) -> List[Card]:
         """List of Card class objects drawn from the deck"""
-        return self.__drawn_cards
+        return self._drawn_cards
 
     # methods
     def shuffle(self):
         """Shuffle the cards in the deck"""
-        shuffle(self.__cards)
+        shuffle(self._cards)
 
     def draw_card(self) -> Card:
         """Draw a card from the deck
 
         :return: Card object
         """
-        drawn_card = self.__cards.pop()
-        self.__drawn_cards.append(drawn_card)
+        drawn_card = self._cards.pop()
+        self._drawn_cards.append(drawn_card)
         return drawn_card

@@ -44,77 +44,66 @@ class PlayerBase:
     """
 
     __slots__ = (
-        "__name",
-        "__bet",
-        "__index",
-        "__hand",
-        "__bust",
-        "__stand",
-        "__table",
+        "_name",
+        "_bet",
+        "_hand",
+        "_bust",
+        "_stand",
+        "_table",
     )
 
     def __init__(self, name: str, bet: int, table):
-        self.__name = name
-        self.__bet = bet
-        self.__index = -1
-        self.__hand = []
-        self.__bust = False
-        self.__stand = False
-        self.__table = table
+        self._name = name
+        self._bet = bet
+        self._hand = []
+        self._bust = False
+        self._stand = False
+        self._table = table
 
     # dunder methods
     def __repr__(self):
-        return self.__name
+        return self._name
 
     def __str__(self):
-        return self.__name
+        return self._name
 
     def __iter__(self):
         """Iterate through the cards in hand"""
-        self.__index = -1
-        return self
-
-    def __next__(self):
-        """Iterate through the cards in hand"""
-        try:
-            self.__index += 1
-            return self.__hand[self.__index]
-        except IndexError:
-            raise StopIteration
+        yield from self._hand
 
     def __getitem__(self, index):
         """Get card at index"""
-        return self.__hand[index]
+        return self._hand[index]
 
     def __len__(self):
         """Number of cards in the hand"""
-        return len(self.__hand)
+        return len(self._hand)
 
     # properties
     @property
     def name(self) -> str:
         """Player name"""
-        return self.__name
+        return self._name
 
     @property
     def bet(self) -> int:
         """Player's bet amount"""
-        return self.__bet
+        return self._bet
 
     @property
     def hand(self) -> Hand:
         """List of Card class objects in the player's hand"""
-        return self.__hand
+        return self._hand
 
     @property
     def bust(self) -> bool:
         """Player's bust status"""
-        return self.__bust
+        return self._bust
 
     @property
     def stand(self) -> bool:
         """Player's stand status"""
-        return self.__stand
+        return self._stand
 
     @property
     def total(self) -> int:
@@ -139,17 +128,17 @@ class PlayerBase:
             :key 3: The dealer is bust
             :key None: Dealer has not finished playing yet
         """
-        if not any((self.__table.dealer.bust, self.__table.dealer.stand,)):
+        if not any((self._table.dealer.bust, self._table.dealer.stand,)):
             return None
         elif self.bust:
             return -2  # Player is bust
-        elif self.total < self.__table.dealer.total and not self.__table.dealer.bust:
+        elif self.total < self._table.dealer.total and not self._table.dealer.bust:
             return -1  # Player has less than the dealer
         elif self.total == 21:
             return 1  # Player has 21 (aka. blackjack)
-        elif self.total > self.__table.dealer.total:
+        elif self.total > self._table.dealer.total:
             return 2  # Player has greater than the dealer
-        elif self.total < self.__table.dealer.total and self.__table.dealer.bust:
+        elif self.total < self._table.dealer.total and self._table.dealer.bust:
             return 3  # The dealer is bust
         else:
             return 0  # Player has the same total as the dealer and both are not bust
@@ -161,10 +150,10 @@ class PlayerBase:
         :return: Card class object
         """
         if not (self.stand or self.bust):
-            card = self.__table.deck.draw_card()
-            self.__hand.append(card)
-            if self.total > 21: self.__bust = True
-            if self.total == 21: self.__stand = True
+            card = self._table.deck.draw_card()
+            self._hand.append(card)
+            if self.total > 21: self._bust = True
+            if self.total == 21: self._stand = True
             return card
 
     def play_stand(self) -> bool:
@@ -173,7 +162,7 @@ class PlayerBase:
         :return: bool
         """
         if not self.bust:
-            self.__stand = True
+            self._stand = True
             return True
         return False
 
@@ -187,26 +176,22 @@ class Player(PlayerBase):
     """
 
     __slots__ = (
-        "__bet",
-        "__split",
-        "__table",
+        "_split",
     )
 
     def __init__(self, name: str, bet: int, table):
         super().__init__(name, bet, table)
-        self.__bet = bet
-        self.__split = None
-        self.__table = table
+        self._split = None
 
     # properties
     @property
     def bet(self) -> int:
-        return self.__bet
+        return self._bet
 
     @property
     def split(self) -> Union[PlayerBase, None]:
         """PlayerBase class object if split is played else none"""
-        return self.__split
+        return self._split
 
     @property
     def can_double_down(self) -> bool:
@@ -229,7 +214,7 @@ class Player(PlayerBase):
         :raises PlayFailure: if player is not eligible to play this
         """
         if self.can_double_down:
-            self.__bet *= 2
+            self._bet *= 2
             card = self.play_hit()
             self.play_stand()
             return card
@@ -247,8 +232,8 @@ class Player(PlayerBase):
         :raises PlayFailure: if player is not eligible to play this
         """
         if self.can_split:
-            self.__split = PlayerBase(self.name, self.bet, self.__table)
-            self.__split.play_hit()
-            return self.__split
+            self._split = PlayerBase(self.name, self.bet, self._table)
+            self._split.play_hit()
+            return self._split
         else:
             raise PlayFailure(self.name, "split")

@@ -1,4 +1,5 @@
 __all__ = (
+    "BlackjackException",
     "InvalidSuits",
     "InvalidRanks",
     "PlayDealerFailure",
