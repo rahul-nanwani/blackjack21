@@ -51,70 +51,59 @@ class Table:
     :keyword deck_count: int number of decks to be used
     """
     __slots__ = (
-        "__players",
-        "__dealer",
-        "__deck",
-        "__auto_deal",
-        "__index",
+        "_players",
+        "_dealer",
+        "_deck",
+        "_auto_deal",
     )
 
     def __init__(self, players: Iterable, **kwargs):
         dealer: str = kwargs.get('dealer_name', "Dealer")
-        self.__auto_deal: bool = kwargs.get('auto_deal', True)
+        self._auto_deal: bool = kwargs.get('auto_deal', True)
         suits: Iterable = kwargs.get('suits', ("Hearts", "Diamonds", "Spades", "Clubs", ))
         ranks: Iterable = kwargs.get('ranks', ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", ))
         count: int = kwargs.get('deck_count', len(tuple(players))//5 + 1)
 
-        self.__deck = Deck(tuple(suits), tuple(ranks), count=count)
-        self.__players = tuple(map(lambda player: valid_player(player, self), players))
-        self.__dealer = Dealer(dealer, self)
-        self.__index = -1
+        self._deck = Deck(tuple(suits), tuple(ranks), count=count)
+        self._players = tuple(map(lambda player: valid_player(player, self), players))
+        self._dealer = Dealer(dealer, self)
 
     # dunder methods
     def __repr__(self):
-        return f"<Table dealer: {self.__dealer} players: {len(self.__players)}>"
+        return f"<Table dealer: {self._dealer} players: {len(self._players)}>"
 
     def __str__(self):
-        return f"<Table dealer: {self.__dealer} players: {len(self.__players)}>"
+        return f"<Table dealer: {self._dealer} players: {len(self._players)}>"
 
     def __iter__(self):
         """Iterate through the players on the table"""
-        self.__index = -1
-        return self
-
-    def __next__(self):
-        """Iterate through the players on the table"""
-        try:
-            self.__index += 1
-            return self.__players[self.__index]
-        except IndexError:
-            raise StopIteration
+        yield from self._players
 
     def __getitem__(self, index):
         """Player at index"""
-        return self.__players[index]
+        return self._players[index]
 
     def __len__(self):
         """Number of players on the table"""
-        return len(self.__players)
+        return len(self._players)
 
     # properties
     @property
     def auto_deal(self) -> bool:
         """Table auto deal bool value"""
-        return self.__auto_deal
+        return self._auto_deal
 
     @property
     def deck(self) -> Deck:
         """Table's Deck class object"""
-        return self.__deck
+        return self._deck
 
     @property
     def dealer(self) -> Dealer:
         """Table's Dealer class object"""
-        return self.__dealer
+        return self._dealer
 
     @property
     def players(self) -> Players:
         """tuple of Player class objects for the Table"""
-        return self.__players
+        return self._players
