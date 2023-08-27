@@ -8,13 +8,14 @@
 
 import os
 import sys
+from datetime import datetime as dt
 
 from blackjack21 import __title__, __author__, __version__
 
 sys.path.insert(0, os.path.abspath(".."))
 
 project = f'{__title__} Documentation'
-copyright = f'2022, {__author__}'
+copyright = f'{dt.now().year}, {__author__}'
 author = __author__
 release = __version__
 
