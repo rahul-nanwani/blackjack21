@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""blackjack21 v3.1.1"""
+"""blackjack21"""
 
 __title__ = "blackjack21"
-__version__ = "3.1.1"
+__version__ = "3.2.0"
 __author__ = "Rahul Nanwani"
 __license__ = "MIT License"
 
