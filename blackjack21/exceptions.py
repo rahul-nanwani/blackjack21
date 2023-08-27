@@ -1,10 +1,10 @@
 __all__ = (
-    "BlackjackException",
-    "InvalidSuits",
-    "InvalidRanks",
-    "PlayDealerFailure",
-    "PlayFailure",
-    "InvalidPlayersData",
+    'BlackjackException',
+    'InvalidSuits',
+    'InvalidRanks',
+    'PlayDealerFailure',
+    'PlayFailure',
+    'InvalidPlayersData',
 )
 
 class BlackjackException(Exception):
