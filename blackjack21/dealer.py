@@ -135,7 +135,7 @@ class Dealer:
             totals = [player.total for player in self._table.players]
             highest_total = max(totals)
 
-            while self.total < 17 and self.total <= highest_total:
+            while self.total < 17:
                 self._play_hit()
 
             if self.total > 21:
