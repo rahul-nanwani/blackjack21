@@ -6,16 +6,16 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import os
+import pathlib
 import sys
 from datetime import datetime as dt
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, pathlib.Path("..").resolve())
 
-from blackjack21 import __title__, __author__, __version__
+from blackjack21 import __author__, __title__, __version__
 
-project = f'{__title__} Documentation'
-copyright = f'{dt.now().year}, {__author__}'
+project = f"{__title__} Documentation"
+copyright = f"{dt.now().year}, {__author__}"
 author = __author__
 release = __version__
 
@@ -24,13 +24,12 @@ release = __version__
 
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc"]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
