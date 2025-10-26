@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from blackjack21 import (
     Dealer,
     Deck,
+    EmptyDeckError,
     GameResult,
     GameState,
     Hand,

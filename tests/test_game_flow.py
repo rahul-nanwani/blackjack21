@@ -1,7 +1,5 @@
 import unittest
 
-import pytest
-
 from blackjack21 import Card, Deck, GameResult, GameState, PlayFailure, Table
 
 # These are the default suits and ranks from your code

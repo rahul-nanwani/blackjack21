@@ -7,6 +7,7 @@ from blackjack21 import (
     GameState,
     Hand,
     InvalidActionError,
+    Player,
     PlayFailure,
     Table,
 )
