@@ -12,7 +12,7 @@ def get_classifier_tags():
     
     # Extract classifier names from the HTML using regex
     # Look for data-clipboard-target="source">CLASSIFIER_NAME</a>
-    pattern = r'data-clipboard-target="source">([^<]+)</a>'
+    pattern = r"data-clipboard-target="source">([^<]+)</a>"
     classifiers = re.findall(pattern, response.text)
     
     return classifiers
