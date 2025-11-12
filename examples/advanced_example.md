@@ -1,14 +1,14 @@
 # Advanced Example
 
 ```python
-from blackjack21 import Table, Dealer
+from blackjack21 import Table, Dealer, GameResult
 
 def print_cards(player):
     print(f"\n{player.name}")
     for i, card in enumerate(player.hand):
-        if (type(player) != Dealer) or (type(player) == Dealer and i == 0):
+        if not isinstance(player, Dealer) or (isinstance(player, Dealer) and i == 0):
             print(f"{card.rank} of {card.suit}")
-    if type(player) != Dealer:
+    if not isinstance(player, Dealer):
         print(player.total)
 
 
@@ -52,13 +52,13 @@ def play_round(table, player):
 
 def print_player_result(player):
     result = player.result
-    if result == 3:
+    if result == GameResult.DEALER_BUST:
         print(f"The dealer is bust, {player.name} wins ${player.bet} ({player.total})")
-    elif result in [1, 2]:
+    elif result in (GameResult.BLACKJACK, GameResult.PLAYER_WIN):
         print(f"{player.name} wins ${player.bet} ({player.total})")
-    elif result == 0:
+    elif result == GameResult.PUSH:
         print(f"Hand tied ({player.total})")
-    elif result == -1:
+    elif result == GameResult.DEALER_WIN:
         print(f"{player.name} loses ${player.bet} ({player.total})")
     else:
         print(f"{player.name} is bust, loses ${player.bet} ({player.total})")
