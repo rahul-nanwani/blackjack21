@@ -3,6 +3,8 @@ name: Validate PyPI Metadata and Classifiers
 on:
   push:
   pull_request:
+    branches:
+      - main
 
 jobs:
   validate:
