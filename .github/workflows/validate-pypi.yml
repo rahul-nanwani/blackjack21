@@ -1,0 +1,31 @@
+name: Validate PyPI Metadata and Classifiers
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install build twine requests
+
+      - name: Build the distribution
+        run: python -m build
+
+      - name: Check metadata with twine
+        run: twine check dist/*
+
+      - name: Validate PyPI classifiers
+        run: python .github/scripts/check_classifiers.py
