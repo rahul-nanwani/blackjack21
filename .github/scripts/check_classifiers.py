@@ -1,20 +1,21 @@
 import ast
-import requests
+import re
 import sys
 from pathlib import Path
-import re
+
+import requests
 
 
 def get_classifier_tags():
     """Get PyPI classifier tags by parsing the HTML page."""
     response = requests.get("https://pypi.org/classifiers/")
     response.raise_for_status()
-    
+
     # Extract classifier names from the HTML using regex
     # Look for data-clipboard-target="source">CLASSIFIER_NAME</a>
     pattern = r"data-clipboard-target=\"source\">([^<]+)</a>"
     classifiers = re.findall(pattern, response.text)
-    
+
     return classifiers
 
 
@@ -33,7 +34,7 @@ def extract_classifiers_from_setup():
                 func_name = node.func.id
             elif isinstance(node.func, ast.Attribute):
                 func_name = node.func.attr
-            
+
             if func_name == "setup":
                 for kw in node.keywords:
                     if kw.arg == "classifiers" and isinstance(kw.value, (ast.List, ast.Tuple)):
