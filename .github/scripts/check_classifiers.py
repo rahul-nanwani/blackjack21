@@ -7,7 +7,17 @@ import requests
 
 
 def get_classifier_tags():
-    """Get PyPI classifier tags by parsing the HTML page."""
+    """Get PyPI classifier tags by parsing the HTML page.
+
+    Fetches the PyPI classifiers page and extracts all valid classifier
+    tags using regex pattern matching.
+
+    Returns:
+        list[str]: A list of valid PyPI classifier strings.
+
+    Raises:
+        requests.RequestException: If the HTTP request to PyPI fails.
+    """
     response = requests.get("https://pypi.org/classifiers/")
     response.raise_for_status()
 
@@ -20,6 +30,17 @@ def get_classifier_tags():
 
 
 def extract_classifiers_from_setup():
+    """Extract classifier tags from setup.py file.
+
+    Parses the setup.py file using AST to find the setup() function call
+    and extracts the classifiers argument value. Handles both direct
+    setup() calls and setuptools.setup() calls.
+
+    Returns:
+        list[str]: A list of classifier strings found in setup.py, or
+            an empty list if setup.py doesn't exist or no classifiers
+            are found.
+    """
     path = Path("setup.py")
     if not path.exists():
         print("⚠️ setup.py not found — skipping classifier check")
@@ -37,7 +58,9 @@ def extract_classifiers_from_setup():
 
             if func_name == "setup":
                 for kw in node.keywords:
-                    if kw.arg == "classifiers" and isinstance(kw.value, (ast.List, ast.Tuple)):
+                    if kw.arg == "classifiers" and isinstance(
+                        kw.value, (ast.List, ast.Tuple)
+                    ):
                         classifiers = []
                         for elt in kw.value.elts:
                             # Handle both ast.Constant (Python 3.8+) and ast.Str (older versions)
@@ -50,6 +73,15 @@ def extract_classifiers_from_setup():
 
 
 def main():
+    """Main entry point for classifier validation.
+
+    Validates that all classifiers in setup.py are valid PyPI classifiers.
+    Fetches the list of valid classifiers from PyPI and compares them
+    against the classifiers found in setup.py.
+
+    Exits with code 1 if any invalid classifiers are found, otherwise
+    prints a success message.
+    """
     valid = get_classifier_tags()
     classifiers = extract_classifiers_from_setup()
     if not classifiers:
