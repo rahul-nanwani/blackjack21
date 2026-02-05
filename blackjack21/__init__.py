@@ -23,7 +23,7 @@
 """blackjack21."""
 
 __title__ = "blackjack21"
-__version__ = "4.0.0"
+__version__ = "5.0.0"
 __author__ = "Rahul Nanwani"
 __license__ = "MIT License"
 
@@ -41,17 +41,29 @@ from .exceptions import (
     PlayFailure,
 )
 from .players import GameResult, GameState, Hand, Player
-from .table import Players, Table
+from .table import (
+    DEFAULT_SUITS,
+    Action,
+    CardSource,
+    Table,
+    shoe_reset_hook,
+    validate_player,
+)
+from .utils import HandTotal
 
 __all__ = (
+    "DEFAULT_SUITS",
+    "Action",
     "BlackjackException",
     "Card",
+    "CardSource",
     "Dealer",
     "Deck",
     "EmptyDeckError",
     "GameResult",
     "GameState",
     "Hand",
+    "HandTotal",
     "InvalidActionError",
     "InvalidPlayersData",
     "InvalidRanks",
@@ -59,6 +71,7 @@ __all__ = (
     "PlayDealerFailure",
     "PlayFailure",
     "Player",
-    "Players",
     "Table",
+    "shoe_reset_hook",
+    "validate_player",
 )

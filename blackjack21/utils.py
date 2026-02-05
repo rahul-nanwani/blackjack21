@@ -1,21 +1,25 @@
-from __future__ import annotations
+__all__ = ("HandTotal", "calculate_hand")
 
-__all__ = ("calculate_hand_total",)
+from typing import NamedTuple
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .deck import Card
+from .deck import Card
 
 
-def calculate_hand_total(cards: list[Card]) -> int:
-    """Calculates the total value of a list of cards, handling Aces."""
-    values = [card.value for card in cards]
-    aces = values.count(11)
-    total = sum(values)
+class HandTotal(NamedTuple):
+    """Computed hand total with metadata."""
 
-    while aces > 0 and total > 21:
+    value: int
+    is_soft: bool
+
+
+def calculate_hand(cards: list[Card]) -> HandTotal:
+    """Calculate hand total, handling aces optimally."""
+    total = sum(c.value for c in cards)
+    aces = sum(1 for c in cards if c.rank == "A")
+    soft_aces = aces
+
+    while soft_aces > 0 and total > 21:
         total -= 10
-        aces -= 1
+        soft_aces -= 1
 
-    return total
+    return HandTotal(value=total, is_soft=soft_aces > 0)

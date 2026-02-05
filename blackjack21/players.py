@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 __all__ = (
     "BetAmount",
     "GameResult",
@@ -8,21 +6,18 @@ __all__ = (
     "Player",
 )
 
-from enum import StrEnum
-from typing import TYPE_CHECKING, NewType
+from collections.abc import Iterator
+from enum import Enum
+from typing import NewType
 
-if TYPE_CHECKING:
-    from collections.abc import Iterator
-
-    from .deck import Card
-
-from .utils import calculate_hand_total
+from .deck import Card
+from .utils import calculate_hand
 
 PlayerName = NewType("PlayerName", str)
 BetAmount = NewType("BetAmount", int)
 
 
-class GameResult(StrEnum):
+class GameResult(str, Enum):
     """Represents the outcome of a player's hand."""
 
     BLACKJACK = "BLACKJACK"
@@ -34,7 +29,7 @@ class GameResult(StrEnum):
     SURRENDER = "SURRENDER"
 
 
-class GameState(StrEnum):
+class GameState(str, Enum):
     """Represents the current phase of the game."""
 
     INIT = "INIT"
@@ -44,45 +39,31 @@ class GameState(StrEnum):
 
 
 class Hand:
-    """Represents a single hand of cards for a player.
+    """A single hand of cards. Does not know its owner.
 
-    :param player: The Player who owns this hand.
     :param bet: int
     """
 
-    __slots__ = (
-        "_bet",
-        "_hand",
-        "_player",
-        "_stand",
-        "_surrendered",
-        "result",
-    )
+    __slots__ = ("_bet", "_cards", "_stood_manually", "_surrendered", "result")
 
-    def __init__(self, player: Player, bet: BetAmount) -> None:
+    def __init__(self, bet: BetAmount) -> None:
+        self._cards: list[Card] = []
         self._bet = bet
-        self._player = player
-        self._hand = []
-        self._stand = False
+        self._stood_manually = False
         self._surrendered = False
-        self.result: GameResult | None = None  # To be set by the Table
+        self.result: GameResult | None = None
 
     def __iter__(self) -> Iterator[Card]:
         """Iterate through the cards in hand."""
-        yield from self._hand
+        yield from self._cards
 
     def __getitem__(self, index: int) -> Card:
         """Get card at index."""
-        return self._hand[index]
+        return self._cards[index]
 
     def __len__(self) -> int:
         """Number of cards in the hand."""
-        return len(self._hand)
-
-    @property
-    def player(self) -> Player:
-        """The player who owns this hand."""
-        return self._player
+        return len(self._cards)
 
     @property
     def bet(self) -> BetAmount:
@@ -90,20 +71,14 @@ class Hand:
         return self._bet
 
     @property
-    def hand(self) -> list[Card]:
-        """List of Card class objects in the player's hand."""
-        return self._hand
-
-    @property
     def bust(self) -> bool:
         """Player's bust status."""
         return self.total > 21
 
     @property
-    def stand(self) -> bool:
-        """Player's stand status."""
-        # Player has stood if they manually stood, surrendered, or their hand total is 21 or more.
-        return self._stand or self.total >= 21 or self._surrendered
+    def is_complete(self) -> bool:
+        """Hand cannot take more actions."""
+        return self._stood_manually or self._surrendered or self.total >= 21
 
     @property
     def surrendered(self) -> bool:
@@ -113,15 +88,27 @@ class Hand:
     @property
     def total(self) -> int:
         """Player's hand total."""
-        return calculate_hand_total(self._hand)
+        return calculate_hand(self._cards).value
 
     def add_card(self, card: Card) -> None:
-        """Adds a card to the hand and updates bust/stand status."""
-        self._hand.append(card)
+        """Adds a card to the hand."""
+        self._cards.append(card)
 
-    def stand_action(self) -> None:
-        """Sets the hand's status to 'stand'."""
-        self._stand = True
+    def mark_stood(self) -> None:
+        """Record that the player explicitly chose to stand."""
+        self._stood_manually = True
+
+    def surrender(self) -> None:
+        """Mark this hand as surrendered."""
+        self._surrendered = True
+
+    def double_bet(self) -> None:
+        """Double the bet (for double-down)."""
+        self._bet = BetAmount(self._bet * 2)
+
+    def pop_card(self) -> Card:
+        """Remove and return the last card (for splitting)."""
+        return self._cards.pop()
 
 
 class Player:
@@ -140,7 +127,7 @@ class Player:
     def __init__(self, name: PlayerName, bet: BetAmount) -> None:
         self._name = name
         self._initial_bet = bet
-        self._hands = [Hand(self, bet)]
+        self._hands = [Hand(bet)]
 
     @property
     def hands(self) -> list[Hand]:
@@ -151,3 +138,8 @@ class Player:
     def name(self) -> PlayerName:
         """Player name."""
         return self._name
+
+    def insert_hand_after(self, existing: Hand, new_hand: Hand) -> None:
+        """Insert a new hand immediately after an existing one (for splitting)."""
+        index = self._hands.index(existing)
+        self._hands.insert(index + 1, new_hand)

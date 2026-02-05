@@ -1,6 +1,6 @@
-from collections.abc import Sequence
-
 from blackjack21 import (
+    DEFAULT_SUITS,
+    Action,
     Dealer,
     Deck,
     EmptyDeckError,
@@ -12,22 +12,18 @@ from blackjack21 import (
     PlayFailure,
     Table,
 )
-from blackjack21.deck import DEFAULT_RANKS, CardSuit
-
-# Define suits for the deck
-DEFAULT_SUITS: Sequence[CardSuit] = ("Hearts", "Diamonds", "Spades", "Clubs")
+from blackjack21.deck import DEFAULT_RANKS
 
 
 def print_dealer_visible_hand(table: Table) -> None:
     """Prints the dealer's visible (up) card."""
     print(f"\n{table.dealer.name}")
-    # Use the table's property to get the visible hand
     visible_cards = table.dealer_visible_hand
     if visible_cards:
         card = visible_cards[0]
         print(f"{card.rank} of {card.suit}")
     # Show "?" for the down-card if game is in progress
-    if table._state == GameState.PLAYERS_TURN and len(table.dealer.hand) > 1:
+    if table.state == GameState.PLAYERS_TURN and len(table.dealer.hand) > 1:
         print("?")
 
 
@@ -38,9 +34,8 @@ def print_full_dealer_hand(dealer: Dealer) -> None:
         print(f"{card.rank} of {card.suit}")
 
 
-def print_hand(hand: Hand) -> None:
+def print_hand(hand: Hand, player: Player) -> None:
     """Prints the cards and total for a single player hand."""
-    player = hand.player
     hand_num_str = ""
     # Add a hand number if the player has split
     if len(player.hands) > 1:
@@ -51,7 +46,7 @@ def print_hand(hand: Hand) -> None:
             pass  # Hand not in list, just print name
 
     print(f"\n{player.name}{hand_num_str}")
-    for card in hand.hand:
+    for card in hand:
         print(f"{card.rank} of {card.suit}")
     print(f"Total: {hand.total}")
 
@@ -59,41 +54,45 @@ def print_hand(hand: Hand) -> None:
 def play_round(table: Table, player: Player) -> None:
     """Manages the interactive turn for a single player, with advanced options."""
     # Loop while the table's current active hand belongs to this player
-    while table.current_hand and table.current_hand.player == player:
+    while table.current_hand and table.current_player == player:
         hand = table.current_hand
 
         print_dealer_visible_hand(table)
-        print_hand(hand)
+        print_hand(hand, player)
 
         # If hand is 21 or bust, it stands automatically
-        if hand.stand:
+        if hand.is_complete:
             if hand.bust:
                 print(f"{player.name} BUSTS!")
             elif hand.total == 21:
                 print(f"{player.name} has 21!")
             continue  # The table will advance to the next hand
 
-        # --- Build dynamic action prompt ---
+        actions = table.available_actions()
         options = {1: "hit", 2: "stand"}
         prompt = "\nHit(1), Stand(2)"
         next_option = 3
 
-        # Check for double down: only on first 2 cards
-        if len(hand.hand) == 2:
+        # Check for double down
+        if Action.DOUBLE in actions:
             prompt += f", Double down({next_option})"
             options[next_option] = "double"
             next_option += 1
 
-        # Check for split: only on first 2 cards of same value
-        if len(hand.hand) == 2 and hand.hand[0].value == hand.hand[1].value:
+        # Check for split
+        if Action.SPLIT in actions:
             prompt += f", Split({next_option})"
             options[next_option] = "split"
             next_option += 1
 
-        prompt += ": "
-        # --- End prompt build ---
+        # Check for surrender
+        if Action.SURRENDER in actions:
+            prompt += f", Surrender({next_option})"
+            options[next_option] = "surrender"
+            next_option += 1
 
-        # Get player action
+        prompt += ": "
+
         action = 0
         while action not in options:
             try:
@@ -108,7 +107,7 @@ def play_round(table: Table, player: Player) -> None:
             if action_str == "hit":
                 card = table.hit()
                 print(f"\n{player.name} hits and gets: {card.rank} of {card.suit}")
-                print_hand(hand)  # Show new hand
+                print_hand(hand, player)  # Show new hand
 
             elif action_str == "stand":
                 print(f"\n{player.name} stands.")
@@ -117,15 +116,19 @@ def play_round(table: Table, player: Player) -> None:
             elif action_str == "double":
                 card = table.double_down()
                 print(
-                    f"\n{player.name} doubles down and gets: {card.rank} of {card.suit}"
+                    f"\n{player.name} doubles down and gets: {card.rank} of {card.suit}",
                 )
-                print_hand(hand)  # Show final hand
+                print_hand(hand, player)  # Show final hand
 
             elif action_str == "split":
                 print(f"\n{player.name} splits.")
                 table.split()
                 # The loop will continue, and the next call to print_hand
                 # will show "Hand 1"
+
+            elif action_str == "surrender":
+                print(f"\n{player.name} surrenders.")
+                table.surrender()
 
         except (PlayFailure, InvalidActionError) as e:
             print(f"Invalid move: {e}")
@@ -134,10 +137,10 @@ def play_round(table: Table, player: Player) -> None:
             table.stand()  # Stand the hand if we can't draw
 
 
-def print_hand_result(hand: Hand) -> None:
+def print_hand_result(hand: Hand, player: Player) -> None:
     """Prints the final result for a single hand."""
     result = hand.result
-    name = hand.player.name
+    name = player.name
     bet = hand.bet
     total = hand.total
 
@@ -163,7 +166,7 @@ def show_result(table: Table) -> None:
 
     for player in table:
         for hand in player.hands:
-            print_hand_result(hand)
+            print_hand_result(hand, player)
 
 
 def main() -> None:
@@ -187,7 +190,7 @@ def main() -> None:
     # Show dealer's up-card
     dealer_first_card = table.dealer_visible_hand[0]
     print(
-        f"{table.dealer.name}: {dealer_first_card.rank} of {dealer_first_card.suit} and ?"
+        f"{table.dealer.name}: {dealer_first_card.rank} of {dealer_first_card.suit} and ?",
     )
 
     # 4. Loop through players and play their turn

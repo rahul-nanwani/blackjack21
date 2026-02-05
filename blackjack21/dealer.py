@@ -1,12 +1,7 @@
-from __future__ import annotations
-
 __all__ = ("Dealer",)
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from .deck import Card, Deck
-
-from .utils import calculate_hand_total
+from .deck import Card
+from .utils import calculate_hand
 
 
 class Dealer:
@@ -24,13 +19,10 @@ class Dealer:
 
     def __init__(self, name: str, *, hit_soft_17: bool = False) -> None:
         self._name = name
-        self._hand = []
+        self._hand: list[Card] = []
         self._hit_soft_17 = hit_soft_17
 
     def __repr__(self) -> str:
-        return self._name
-
-    def __str__(self) -> str:
         return self._name
 
     @property
@@ -51,32 +43,26 @@ class Dealer:
     @property
     def is_soft(self) -> bool:
         """Checks if the hand is 'soft' (an Ace is counted as 11)."""
-        raw_total = sum(c.value if c.rank != "A" else 1 for c in self._hand)
-        return self.total != raw_total
+        return calculate_hand(self._hand).is_soft
 
     @property
     def stand(self) -> bool:
         """Dealer's stand status (total >= 17)."""
-        total = self.total
-        if total > 17:
+        result = calculate_hand(self._hand)
+        if result.value > 17:
             return True
-        if total < 17:
+        if result.value < 17:
             return False
-        return not (self._hit_soft_17 and self.is_soft)
+        return not (self._hit_soft_17 and result.is_soft)
 
     @property
     def total(self) -> int:
         """Dealer's hand total."""
-        return calculate_hand_total(self._hand)
+        return calculate_hand(self._hand).value
 
     def add_card(self, card: Card) -> None:
         """Adds a card to the dealer's hand."""
         self._hand.append(card)
-
-    def play(self, deck: Deck) -> None:
-        """Draws cards until the total is 17 or more."""
-        while not self.stand:
-            self.add_card(deck.draw_card())
 
     def clear_hand(self) -> None:
         """Clears the dealer's hand."""
