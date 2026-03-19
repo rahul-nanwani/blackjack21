@@ -1,1 +1,1 @@
-pytest  # for test_v5.py
+pytest~=9.0  # for test_v5.py
