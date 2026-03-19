@@ -48,9 +48,6 @@ class Card:
     def __repr__(self) -> str:
         return f"{self.rank} of {self.suit}"
 
-    def __str__(self) -> str:
-        return f"{self.rank} of {self.suit}"
-
 
 class Deck:
     """Deck of cards class (Iterable).
@@ -96,14 +93,11 @@ class Deck:
     def __repr__(self) -> str:
         return f"<Deck cards: {len(self._cards)}>"
 
-    def __str__(self) -> str:
-        return f"<Deck cards: {len(self._cards)}>"
-
-    def __iter__(self) -> Iterator["Card"]:
+    def __iter__(self) -> Iterator[Card]:
         """Iterate through the cards in the deck."""
         yield from self._cards
 
-    def __getitem__(self, index: int) -> "Card":
+    def __getitem__(self, index: int) -> Card:
         """Get card at index."""
         return self._cards[index]
 
@@ -112,12 +106,12 @@ class Deck:
         return len(self._cards)
 
     @property
-    def cards(self) -> list["Card"]:
+    def cards(self) -> list[Card]:
         """List of Card class objects currently in the deck."""
         return self._cards
 
     @property
-    def drawn_cards(self) -> list["Card"]:
+    def drawn_cards(self) -> list[Card]:
         """List of Card class objects drawn from the deck."""
         return self._drawn_cards
 
@@ -139,14 +133,16 @@ class Deck:
         self._drawn_cards.clear()
         self.shuffle()
 
-    def draw_card(self) -> "Card":
-        """Draw a card from the deck.
+    def draw_card(self) -> Card:
+        """Draw a card. Auto-resets from drawn pile if empty.
 
         :return: Card object
-        :raises EmptyDeckError: if the deck is out of cards
+        :raises EmptyDeckError: if the deck and drawn pile are both empty
         """
         if not self._cards:
-            raise EmptyDeckError
+            if not self._drawn_cards:
+                raise EmptyDeckError()
+            self.reset()
 
         drawn_card = self._cards.pop()
         self._drawn_cards.append(drawn_card)

@@ -17,6 +17,7 @@ def get_classifier_tags():
 
     Raises:
         requests.RequestException: If the HTTP request to PyPI fails.
+
     """
     response = requests.get("https://pypi.org/classifiers/")
     response.raise_for_status()
@@ -40,6 +41,7 @@ def extract_classifiers_from_setup():
         list[str]: A list of classifier strings found in setup.py, or
             an empty list if setup.py doesn't exist or no classifiers
             are found.
+
     """
     path = Path("setup.py")
     if not path.exists():
@@ -59,7 +61,8 @@ def extract_classifiers_from_setup():
             if func_name == "setup":
                 for kw in node.keywords:
                     if kw.arg == "classifiers" and isinstance(
-                        kw.value, (ast.List, ast.Tuple)
+                        kw.value,
+                        (ast.List, ast.Tuple),
                     ):
                         classifiers = []
                         for elt in kw.value.elts:
@@ -86,7 +89,7 @@ def main():
     classifiers = extract_classifiers_from_setup()
     if not classifiers:
         print("⚠️ No classifiers found in setup.py")
-        return None
+        return
     invalid = [c for c in classifiers if c not in valid]
     if invalid:
         print("❌ Invalid classifiers found:")
@@ -95,7 +98,7 @@ def main():
         sys.exit(1)
     else:
         print("✅ All classifiers are valid!")
-    return None
+    return
 
 
 if __name__ == "__main__":

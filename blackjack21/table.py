@@ -1,11 +1,19 @@
-from __future__ import annotations
+__all__ = (
+    "DEFAULT_SUITS",
+    "Action",
+    "CardSource",
+    "Table",
+    "shoe_reset_hook",
+    "validate_player",
+)
 
-__all__ = ("Players", "Table")
-from typing import TYPE_CHECKING, Final
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from enum import Enum
+from typing import Final, Protocol
 
 from .dealer import Dealer
+from .deck import Card, CardSuit, Deck
 from .exceptions import (
-    EmptyDeckError,
     InvalidActionError,
     InvalidPlayersData,
     PlayDealerFailure,
@@ -13,23 +21,84 @@ from .exceptions import (
 )
 from .players import BetAmount, GameResult, GameState, Hand, Player, PlayerName
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
-
-    from .deck import Card, CardSuit, Deck
-
-Players = list[Player]
-
 DEFAULT_SUITS: Final[Sequence[CardSuit]] = ("Hearts", "Diamonds", "Spades", "Clubs")
+
+
+class Action(str, Enum):
+    """Player actions during their turn."""
+
+    HIT = "hit"
+    STAND = "stand"
+    SPLIT = "split"
+    DOUBLE = "double"
+    SURRENDER = "surrender"
+
+
+class CardSource(Protocol):
+    """Anything that can provide cards."""
+
+    def draw_card(self) -> Card: ...
+    def __len__(self) -> int: ...
+
+
+def validate_player(name: str, bet: int) -> tuple[PlayerName, BetAmount]:
+    """Validate raw player data at the boundary and wrap in domain types."""
+    if not name:
+        raise InvalidPlayersData((name, bet))
+    if bet <= 0:
+        raise InvalidPlayersData((name, bet))
+    return PlayerName(name), BetAmount(bet)
+
+
+def shoe_reset_hook(deck: Deck, threshold: float = 0.75) -> Callable[[], None]:
+    """Standard shoe management: reset when penetration exceeds threshold."""
+
+    def _check_and_reset() -> None:
+        if deck.penetration > threshold:
+            deck.reset()
+
+    return _check_and_reset
+
+
+def _check_surrender(hand: Hand, *, has_split: bool) -> str | None:
+    """Returns None if legal, or a reason string if not."""
+    if hand.is_complete:
+        return "hand is already complete"
+    if len(hand) != 2:
+        return "not on first turn"
+    if has_split:
+        return "not allowed after split"
+    return None
+
+
+def _check_double(hand: Hand) -> str | None:
+    """Returns None if legal, or a reason string if not."""
+    if hand.is_complete:
+        return "hand is already complete"
+    if len(hand) != 2:
+        return "not on first turn"
+    return None
+
+
+def _check_split(hand: Hand) -> str | None:
+    """Returns None if legal, or a reason string if not."""
+    if hand.is_complete:
+        return "hand is already complete"
+    if len(hand) != 2:
+        return "not on first turn"
+    if hand[0].value != hand[1].value:
+        return "cards do not have equal value"
+    return None
 
 
 class Table:
     """Create object for this class to initialize a blackjack table (Iterable through players).
 
     :param players: An iterable of player tuples `(name, bet)`.
-    :param deck: A `Deck` object to be used for the game.
+    :param deck: A card source to be used for the game.
     :param dealer_name: The name of the dealer.
     :param hit_soft_17: bool, whether the dealer hits on a soft 17.
+    :param on_round_reset: Optional callback invoked when a round resets.
     """
 
     __slots__ = (
@@ -38,26 +107,29 @@ class Table:
         "_dealer",
         "_deck",
         "_initial_players_data",
+        "_on_round_reset",
         "_players",
         "_state",
     )
 
     def __init__(
         self,
-        players: Iterable[tuple[PlayerName, BetAmount]],
-        deck: Deck,
+        players: Iterable[tuple[str, int]],
+        deck: CardSource,
         *,
         dealer_name: str = "Dealer",
         hit_soft_17: bool = False,
+        on_round_reset: Callable[[], None] | None = None,
     ) -> None:
         self._deck = deck
         self._dealer = Dealer(dealer_name, hit_soft_17=hit_soft_17)
+        self._on_round_reset = on_round_reset
 
-        self._initial_players_data = list(players)
-        self._players = []
-        for name, bet in self._initial_players_data:
-            if not name or bet <= 0:
-                raise InvalidPlayersData((name, bet))
+        self._initial_players_data: list[tuple[PlayerName, BetAmount]] = []
+        self._players: list[Player] = []
+        for raw_name, raw_bet in players:
+            name, bet = validate_player(raw_name, raw_bet)
+            self._initial_players_data.append((name, bet))
             self._players.append(Player(name, bet))
 
         self._current_player_idx: int | None = None
@@ -65,9 +137,6 @@ class Table:
         self._state = GameState.INIT
 
     def __repr__(self) -> str:
-        return f"<Table dealer: {self._dealer} players: {len(self._players)}>"
-
-    def __str__(self) -> str:
         return f"<Table dealer: {self._dealer} players: {len(self._players)}>"
 
     def __iter__(self) -> Iterator[Player]:
@@ -83,8 +152,8 @@ class Table:
         return len(self._players)
 
     @property
-    def deck(self) -> Deck:
-        """Table's Deck class object."""
+    def deck(self) -> CardSource:
+        """The table's card source."""
         return self._deck
 
     @property
@@ -93,9 +162,14 @@ class Table:
         return self._dealer
 
     @property
-    def players(self) -> Players:
+    def players(self) -> list[Player]:
         """List of Player class objects for the Table."""
         return self._players
+
+    @property
+    def state(self) -> GameState:
+        """The current phase of the game."""
+        return self._state
 
     @property
     def dealer_visible_hand(self) -> list[Card]:
@@ -122,54 +196,64 @@ class Table:
             # This can happen if a player list or hand list is empty
             return None
 
-    def _next_hand(self) -> None:
-        """Advances to the next available (non-standing) player hand."""
-        if self._current_player_idx is None or self._current_hand_idx is None:
-            return  # Game over or not started
+    @property
+    def current_player(self) -> Player | None:
+        """The player whose hand is currently being played."""
+        if self._current_player_idx is None:
+            return None
+        return self._players[self._current_player_idx]
 
-        # Start by checking the next hand for the current player
+    def available_actions(self) -> frozenset[Action]:
+        """Returns the set of legal actions for the current hand."""
+        hand = self.current_hand
+        if not hand or hand.is_complete:
+            return frozenset()
+
+        player = self.current_player
+        has_split = len(player.hands) > 1
+
+        actions: set[Action] = {Action.HIT, Action.STAND}
+        if _check_double(hand) is None:
+            actions.add(Action.DOUBLE)
+        if _check_surrender(hand, has_split=has_split) is None:
+            actions.add(Action.SURRENDER)
+        if _check_split(hand) is None:
+            actions.add(Action.SPLIT)
+        return frozenset(actions)
+
+    def _next_hand(self) -> None:
+        """Advances to the next available (non-complete) player hand."""
+        if self._current_player_idx is None or self._current_hand_idx is None:
+            return
+
         self._current_hand_idx += 1
 
         while self._current_player_idx < len(self._players):
             player = self._players[self._current_player_idx]
 
-            # Check remaining hands for the current player
             while self._current_hand_idx < len(player.hands):
-                if not player.hands[self._current_hand_idx].stand:
-                    return  # Found the next active hand
+                if not player.hands[self._current_hand_idx].is_complete:
+                    return
                 self._current_hand_idx += 1
 
-            # No more hands for this player, move to the next player
             self._current_player_idx += 1
-            self._current_hand_idx = 0  # Reset hand index for the new player
+            self._current_hand_idx = 0
 
-        # If we exit the outer loop, there are no more players or hands.
         self._current_player_idx = None
         self._current_hand_idx = None
         self._state = GameState.DEALER_TURN
         self._play_dealer_and_end_game()
 
-    def _draw_card(self) -> Card:
-        """Draws a card from the deck, resetting if it's empty."""
-        try:
-            return self._deck.draw_card()
-        except EmptyDeckError:
-            self._deck.reset()
-            # After reset, if the deck is still empty, it's an unrecoverable state.
-            # This should not happen in a normal game.
-            if not self._deck:
-                msg = "Deck is empty even after reset. Cannot continue."
-                raise RuntimeError(msg)
-            return self._deck.draw_card()
-
     def _play_dealer_and_end_game(self) -> None:
-        """Plays the dealer's hand and calculates results for all player hands."""
+        """Plays the dealer's hand and calculates results."""
         for player in self._players:
             for hand in player.hands:
-                if not hand.stand:
+                if not hand.is_complete:
                     raise PlayDealerFailure(player.name)
 
-        self._dealer.play(self._deck)
+        while not self._dealer.stand:
+            self._dealer.add_card(self._deck.draw_card())
+
         self._calculate_results()
         self._state = GameState.ROUND_OVER
 
@@ -180,7 +264,6 @@ class Table:
         dealer_has_blackjack = len(self._dealer.hand) == 2 and dealer_total == 21
 
         for player in self._players:
-            # Check if this player has split
             player_has_split = len(player.hands) > 1
 
             for hand in player.hands:
@@ -192,9 +275,8 @@ class Table:
                     hand.result = GameResult.PLAYER_BUST
                     continue
 
-                # Blackjack check
                 is_blackjack = (
-                    len(hand.hand) == 2 and hand.total == 21 and not player_has_split
+                    len(hand) == 2 and hand.total == 21 and not player_has_split
                 )
                 if is_blackjack:
                     # Push if dealer also has blackjack, otherwise it's a win.
@@ -216,7 +298,7 @@ class Table:
                     hand.result = GameResult.PLAYER_WIN
                 elif hand.total < dealer_total:
                     hand.result = GameResult.DEALER_WIN
-                else:  # hand.total == dealer_total
+                else:
                     hand.result = GameResult.PUSH
 
     def _reset_round(self) -> None:
@@ -227,9 +309,9 @@ class Table:
             # Re-instantiate players for a clean state
             self._players.append(Player(name, bet))
 
-        # Reshuffle the deck if card penetration is over 75%
-        if self._deck.penetration > 0.75:
-            self._deck.reset()
+        if self._on_round_reset:
+            self._on_round_reset()
+
         self._current_player_idx = None
         self._current_hand_idx = None
 
@@ -248,12 +330,9 @@ class Table:
         # Check if there are enough cards for the initial deal.
         cards_needed = (len(self._players) + 1) * 2
         if len(self._deck) < cards_needed:
-            self._deck.reset()  # Try resetting the deck
-            if len(self._deck) < cards_needed:
-                msg = "Cannot start game: not enough cards in the deck to deal."
-                raise InvalidActionError(
-                    msg,
-                )
+            raise InvalidActionError(
+                "Cannot start game: not enough cards in the deck to deal.",
+            )
 
         # Deal first card to each hand, then to dealer
         for player in self._players:
@@ -272,12 +351,12 @@ class Table:
 
         # If dealer has 21, game ends immediately. Otherwise, if first player has 21, move to next.
         if self._dealer.total == 21:
-            self._state = GameState.DEALER_TURN  # Players' turn is skipped
-            self._calculate_results()  # Go straight to calculating results
+            self._state = GameState.DEALER_TURN
+            self._calculate_results()
             self._state = GameState.ROUND_OVER
         else:
             self._state = GameState.PLAYERS_TURN
-            if self.current_hand and self.current_hand.stand:
+            if self.current_hand and self.current_hand.is_complete:
                 self._next_hand()
 
     def hit(self) -> Card:
@@ -289,14 +368,16 @@ class Table:
         if not hand:
             msg = "Cannot hit: there is no active hand."
             raise InvalidActionError(msg)
-        if hand.stand:
-            msg = hand.player.name
-            raise PlayFailure(msg, "hit (hand is already standing)")
 
-        card = self._draw_card()
+        player = self.current_player
+        assert player is not None  # Guaranteed when current_hand is truthy
+        if hand.is_complete:
+            raise PlayFailure(player.name, "hit (hand is already complete)")
+
+        card = self._deck.draw_card()
         hand.add_card(card)
 
-        if hand.stand:  # Automatically stands on 21 or bust
+        if hand.is_complete:
             self._next_hand()
         return card
 
@@ -309,7 +390,7 @@ class Table:
             msg = "Cannot stand: there is no active hand."
             raise InvalidActionError(msg)
 
-        self.current_hand.stand_action()
+        self.current_hand.mark_stood()
         self._next_hand()
 
     def surrender(self) -> None:
@@ -321,21 +402,14 @@ class Table:
         if not hand:
             msg = "Cannot surrender: there is no active hand."
             raise InvalidActionError(msg)
-        if hand.stand:
-            msg = hand.player.name
-            raise PlayFailure(msg, "surrender (hand is already standing)")
-        if len(hand.hand) != 2:
-            msg = hand.player.name
-            raise PlayFailure(msg, "surrender (not on first turn)")
 
-        # Check if the player has split
-        player = hand.player
-        if len(player.hands) > 1:
-            msg = player.name
-            raise PlayFailure(msg, "surrender (not allowed after split)")
+        player = self.current_player
+        assert player is not None  # Guaranteed when current_hand is truthy
+        reason = _check_surrender(hand, has_split=len(player.hands) > 1)
+        if reason:
+            raise PlayFailure(player.name, f"surrender ({reason})")
 
-        hand._surrendered = True
-        hand.stand_action()
+        hand.surrender()
         self._next_hand()
 
     def double_down(self) -> Card:
@@ -347,21 +421,21 @@ class Table:
         if not hand:
             msg = "Cannot double down: there is no active hand."
             raise InvalidActionError(msg)
-        if hand.stand:
-            msg = hand.player.name
-            raise PlayFailure(msg, "double down (hand is already standing)")
-        if len(hand.hand) != 2:
-            msg = hand.player.name
-            raise PlayFailure(msg, "double down (not on first turn)")
 
-        # Draw card first to ensure the deck is not empty before changing state.
-        card = self._draw_card()
+        player = self.current_player
+        assert player is not None  # Guaranteed when current_hand is truthy
+        reason = _check_double(hand)
+        if reason:
+            raise PlayFailure(player.name, f"double down ({reason})")
 
-        hand._bet *= 2
+        # Draw card first to ensure the deck has cards before modifying state.
+        card = self._deck.draw_card()
+
+        hand.double_bet()
         hand.add_card(card)
 
         # A doubled hand must stand.
-        hand.stand_action()
+        hand.mark_stood()
         self._next_hand()
         return card
 
@@ -374,38 +448,34 @@ class Table:
         if not hand:
             msg = "Cannot split: there is no active hand."
             raise InvalidActionError(msg)
-        if (
-            hand.stand
-            or len(hand.hand) != 2
-            or hand.hand[0].value != hand.hand[1].value
-        ):
-            msg = hand.player.name
-            raise PlayFailure(msg, "split")
+
+        player = self.current_player
+        assert player is not None  # Guaranteed when current_hand is truthy
+        reason = _check_split(hand)
+        if reason:
+            raise PlayFailure(player.name, f"split ({reason})")
 
         # Draw cards first to ensure deck has enough cards before splitting.
-        card1 = self._draw_card()
-        card2 = self._draw_card()
+        card1 = self._deck.draw_card()
+        card2 = self._deck.draw_card()
 
-        # Store the rank to check for Aces
-        split_rank = hand.hand[0].rank
+        split_rank = hand[0].rank
+        split_card = hand.pop_card()
 
-        # Find the player who owns this hand
-        player = hand.player
-        split_card = hand.hand.pop()
-
-        new_hand = Hand(player, hand.bet)
+        new_hand = Hand(hand.bet)
         new_hand.add_card(split_card)
-        player.hands.insert(player.hands.index(hand) + 1, new_hand)
 
-        # Deal new cards
+        # Insert the new hand immediately after the current one.
+        player.insert_hand_after(hand, new_hand)
+
+        # Deal new cards to each hand.
         hand.add_card(card1)
         new_hand.add_card(card2)
 
-        # If the first hand is now 21, it stands automatically. Move to the next hand.
-        # Also, if Aces were split, the player cannot hit, so we stand both hands.
+        # If Aces were split, both hands stand automatically.
         if split_rank == "A":
-            hand.stand_action()
-            new_hand.stand_action()
+            hand.mark_stood()
+            new_hand.mark_stood()
             self._next_hand()
-        elif hand.stand:  # e.g. got 21 on the first hand after split
+        elif hand.is_complete:  # e.g. got 21 on the first hand after split
             self._next_hand()

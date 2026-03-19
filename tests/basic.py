@@ -1,6 +1,5 @@
-from collections.abc import Sequence
-
 from blackjack21 import (
+    DEFAULT_SUITS,
     Dealer,
     Deck,
     GameResult,
@@ -11,22 +10,18 @@ from blackjack21 import (
     PlayFailure,
     Table,
 )
-from blackjack21.deck import DEFAULT_RANKS, CardSuit
-
-# Define suits for the deck
-DEFAULT_SUITS: Sequence[CardSuit] = ("Hearts", "Diamonds", "Spades", "Clubs")
+from blackjack21.deck import DEFAULT_RANKS
 
 
 def print_dealer_visible_hand(table: Table) -> None:
     """Prints the dealer's visible (up) card."""
     print(f"\n{table.dealer.name}")
-    # Use the table's property to get the visible hand
     visible_cards = table.dealer_visible_hand
     if visible_cards:
         card = visible_cards[0]
         print(f"{card.rank} of {card.suit}")
     # Show "?" for the down-card if game is in progress
-    if table._state == GameState.PLAYERS_TURN and len(table.dealer.hand) > 1:
+    if table.state == GameState.PLAYERS_TURN and len(table.dealer.hand) > 1:
         print("?")
 
 
@@ -37,9 +32,8 @@ def print_full_dealer_hand(dealer: Dealer) -> None:
         print(f"{card.rank} of {card.suit}")
 
 
-def print_hand(hand: Hand) -> None:
+def print_hand(hand: Hand, player: Player) -> None:
     """Prints the cards and total for a single player hand."""
-    player = hand.player
     hand_num_str = ""
     # Add a hand number if the player has split
     if len(player.hands) > 1:
@@ -50,22 +44,22 @@ def print_hand(hand: Hand) -> None:
             pass  # Hand not in list, just print name
 
     print(f"\n{player.name}{hand_num_str}")
-    for card in hand.hand:
+    for card in hand:
         print(f"{card.rank} of {card.suit}")
     print(f"Total: {hand.total}")
 
 
-def play_round(table: Table, player: "Player") -> None:
+def play_round(table: Table, player: Player) -> None:
     """Manages the interactive turn for a single player."""
     # Loop while the table's current active hand belongs to this player
-    while table.current_hand and table.current_hand.player == player:
+    while table.current_hand and table.current_player == player:
         hand = table.current_hand
 
         print_dealer_visible_hand(table)
-        print_hand(hand)
+        print_hand(hand, player)
 
         # If hand is 21 or bust, it stands automatically
-        if hand.stand:
+        if hand.is_complete:
             if hand.bust:
                 print(f"{player.name} BUSTS!")
             elif hand.total == 21:
@@ -81,7 +75,7 @@ def play_round(table: Table, player: "Player") -> None:
             if action_str == "1":
                 card = table.hit()
                 print(f"\n{player.name} hits and gets: {card.rank} of {card.suit}")
-                print_hand(hand)  # Show new hand
+                print_hand(hand, player)  # Show new hand
             elif action_str == "2":
                 print(f"\n{player.name} stands.")
                 table.stand()
@@ -89,10 +83,10 @@ def play_round(table: Table, player: "Player") -> None:
             print(f"Invalid move: {e}")
 
 
-def print_hand_result(hand: Hand) -> None:
+def print_hand_result(hand: Hand, player: Player) -> None:
     """Prints the final result for a single hand."""
     result = hand.result
-    name = hand.player.name
+    name = player.name
     bet = hand.bet
     total = hand.total
 
@@ -116,7 +110,7 @@ def show_result(table: Table) -> None:
 
     for player in table:
         for hand in player.hands:
-            print_hand_result(hand)
+            print_hand_result(hand, player)
 
 
 def main() -> None:

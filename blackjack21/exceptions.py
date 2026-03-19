@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-from .players import BetAmount, PlayerName
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
@@ -22,7 +20,7 @@ __all__ = (
 class BlackjackException(Exception):
     """Blackjack base class exception."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args) -> None:
         super().__init__(*args)
 
 
@@ -54,8 +52,9 @@ class PlayFailure(BlackjackException):
 
 
 class PlayDealerFailure(BlackjackException):
+    """Raised when dealer tries to play their hand before all players have finished."""
+
     def __init__(self, name: str) -> None:
-        """Raised when dealer tries to play their hand before all players have finished."""
         super().__init__(
             f"Failed to play dealer.\n{name} has not finished playing their hand yet.",
         )
@@ -64,7 +63,7 @@ class PlayDealerFailure(BlackjackException):
 class InvalidPlayersData(BlackjackException):
     """Raised when the input player data is invalid."""
 
-    def __init__(self, player_data: tuple[PlayerName, BetAmount]) -> None:
+    def __init__(self, player_data: tuple[str, int]) -> None:
         super().__init__(
             f"Invalid player data provided: {player_data}. Players must have a non-empty name and a bet greater than 0.",
         )
