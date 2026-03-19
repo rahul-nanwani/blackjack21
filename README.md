@@ -22,9 +22,9 @@ A complete package for creating a multiplayer blackjack table.
 pip install blackjack21
 ```
 
-Full documentation available at: [blackjack21.rtfd.io/en/latest/](https://blackjack21.rtfd.io/en/latest/)
+Full documentation available at: [https://blackjack21.readthedocs.io/](https://blackjack21.readthedocs.io/)
 
 ### Examples:
 
-- [Basic Example](https://github.com/rahul-nanwani/blackjack21/blob/master/examples/basic_example.md)
-- [Advanced Example](https://github.com/rahul-nanwani/blackjack21/blob/master/examples/advanced_example.md)
+- [Basic Example](https://github.com/rahul-nanwani/blackjack21/blob/main/examples/basic_example.md)
+- [Advanced Example](https://github.com/rahul-nanwani/blackjack21/blob/main/examples/advanced_example.md)
