@@ -10,7 +10,8 @@ import pathlib
 import sys
 from datetime import datetime as dt
 
-sys.path.insert(0, pathlib.Path("..").resolve())
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from blackjack21 import __author__, __title__, __version__
 
