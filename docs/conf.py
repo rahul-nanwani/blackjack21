@@ -13,7 +13,7 @@ from datetime import datetime as dt
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from blackjack21 import __author__, __title__, __version__   # noqa: E402
+from blackjack21 import __author__, __title__, __version__  # noqa: E402
 
 project = f"{__title__} Documentation"
 copyright = f"{dt.now().year}, {__author__}"
