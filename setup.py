@@ -20,9 +20,9 @@ setup(
     description="A complete package for blackjack, with no players limit on a table, double down, and split features too.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://blackjack21.rtfd.io/en/latest/",
+    url="https://blackjack21.rtfd.io/",
     project_urls={
-        "Documentation": "https://blackjack21.rtfd.io/en/latest/",
+        "Documentation": "https://blackjack21.rtfd.io/",
         "Source": "https://github.com/rahul-nanwani/blackjack21/",
         "Tracker": "https://github.com/rahul-nanwani/blackjack21/issues",
     },
