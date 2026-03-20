@@ -24,7 +24,7 @@
 
 __title__ = "blackjack21"
 __version__ = "5.0.0"
-__author__ = ["Rahul Nanwani", "Restitutor"]
+__author__ = "Rahul Nanwani, Restitutor"
 __license__ = "MIT License"
 
 
