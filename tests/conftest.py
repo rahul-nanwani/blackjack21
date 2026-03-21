@@ -1,4 +1,5 @@
 """Shared test helpers for blackjack21 tests."""
+
 import pathlib
 import sys
 
