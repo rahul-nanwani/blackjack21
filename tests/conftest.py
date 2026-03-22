@@ -1,6 +1,13 @@
 """Shared test helpers for blackjack21 tests."""
 
-from blackjack21 import Card, EmptyDeckError
+import pathlib
+import sys
+
+# Set the project root directory to the path of the project
+PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from blackjack21 import Card, EmptyDeckError  # noqa: E402
 
 RANKS = {
     "A": 11,
