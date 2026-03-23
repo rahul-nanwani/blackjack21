@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install build twine requests
+          pip install build twine requests tomli
 
       - name: Build the distribution
         run: python -m build

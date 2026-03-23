@@ -13,7 +13,7 @@ def get_classifier_tags():
     tags using regex pattern matching.
 
     Returns:
-        list[str]: A list of valid PyPI classifier strings.
+        list[str]: A list of valid classifier strings.
 
     Raises:
         requests.RequestException: If the HTTP request to PyPI fails.
@@ -30,28 +30,33 @@ def get_classifier_tags():
     return classifiers
 
 
+def _load_pyproject() -> dict:
+    path = Path("pyproject.toml")
+    if not path.exists():
+        return {}
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib
+    with path.open("rb") as f:
+        return tomllib.load(f)
+
+
+def extract_classifiers_from_pyproject():
+    """Extract classifier tags from [project] in pyproject.toml."""
+    data = _load_pyproject()
+    return data.get("project", {}).get("classifiers") or []
+
+
 def extract_classifiers_from_setup():
-    """Extract classifier tags from setup.py file.
-
-    Parses the setup.py file using AST to find the setup() function call
-    and extracts the classifiers argument value. Handles both direct
-    setup() calls and setuptools.setup() calls.
-
-    Returns:
-        list[str]: A list of classifier strings found in setup.py, or
-            an empty list if setup.py doesn't exist or no classifiers
-            are found.
-
-    """
+    """Extract classifier tags from setup.py (legacy layout)."""
     path = Path("setup.py")
     if not path.exists():
-        print("⚠️ setup.py not found — skipping classifier check")
         return []
     source = path.read_text()
     tree = ast.parse(source)
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
-            # Handle both 'setup()' and 'setuptools.setup()'
             func_name = None
             if isinstance(node.func, ast.Name):
                 func_name = node.func.id
@@ -66,7 +71,6 @@ def extract_classifiers_from_setup():
                     ):
                         classifiers = []
                         for elt in kw.value.elts:
-                            # Handle both ast.Constant (Python 3.8+) and ast.Str (older versions)
                             if isinstance(elt, ast.Constant):
                                 classifiers.append(elt.value)
                             elif isinstance(elt, ast.Str):  # Python < 3.8
@@ -75,20 +79,20 @@ def extract_classifiers_from_setup():
     return []
 
 
+def extract_classifiers():
+    """Prefer pyproject.toml [project.classifiers], else setup.py."""
+    from_pp = extract_classifiers_from_pyproject()
+    if from_pp:
+        return from_pp
+    return extract_classifiers_from_setup()
+
+
 def main():
-    """Main entry point for classifier validation.
-
-    Validates that all classifiers in setup.py are valid PyPI classifiers.
-    Fetches the list of valid classifiers from PyPI and compares them
-    against the classifiers found in setup.py.
-
-    Exits with code 1 if any invalid classifiers are found, otherwise
-    prints a success message.
-    """
+    """Validate classifiers against the live PyPI classifier list."""
     valid = get_classifier_tags()
-    classifiers = extract_classifiers_from_setup()
+    classifiers = extract_classifiers()
     if not classifiers:
-        print("⚠️ No classifiers found in setup.py")
+        print("⚠️ No classifiers found in pyproject.toml or setup.py")
         return
     invalid = [c for c in classifiers if c not in valid]
     if invalid:
