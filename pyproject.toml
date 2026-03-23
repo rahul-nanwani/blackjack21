@@ -22,7 +22,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Topic :: Games/Entertainment",
-    "License :: OSI Approved :: MIT License"
 ]
 keywords = ["blackjack", "cards", "game", "casino"]
 dependencies = []
