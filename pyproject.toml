@@ -1,6 +1,43 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "blackjack21"
+description = "Dependency-free Python library for blackjack tables: multiple players, splits, doubles, surrender, and pluggable shoes."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Rahul Nanwani", email = "rahulnanwani@icloud.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Games/Entertainment",
+]
+keywords = ["blackjack", "cards", "game", "casino"]
+dependencies = []
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://blackjack21.readthedocs.io/"
+Documentation = "https://blackjack21.readthedocs.io/"
+Repository = "https://github.com/rahul-nanwani/blackjack21"
+Issues = "https://github.com/rahul-nanwani/blackjack21/issues"
+
+[tool.setuptools]
+packages = ["blackjack21"]
+
+[tool.setuptools.dynamic]
+version = { attr = "blackjack21.__version__" }
 
 [tool.ty.rules]
 unresolved-import = "ignore"
