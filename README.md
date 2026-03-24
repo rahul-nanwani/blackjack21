@@ -82,11 +82,9 @@ Invalid moves raise `InvalidActionError` (wrong phase) or `PlayFailure` (illegal
 ## Documentation and examples
 
 - **Docs:** [blackjack21.readthedocs.io](https://blackjack21.readthedocs.io/)
-- **Examples** (pinned to release **v5.0.0**; see `main` on GitHub for the latest):
+- **Examples:**
   - [Basic example](https://github.com/rahul-nanwani/blackjack21/blob/v5.0.0/examples/basic_example.md): hit / stand loop
   - [Advanced example](https://github.com/rahul-nanwani/blackjack21/blob/v5.0.0/examples/advanced_example.md): double, split, surrender, available_actions
-
-When you publish a new release, update the `v5.0.0` segment in those URLs to match the tag.
 
 ## License
 
